@@ -1,8 +1,6 @@
 ---
 layout: post
 title:  "Comparator tricks"
-date:   2017-05-31 22:13:28 +0100
-categories: jekyll update java
 ---
 
 Let's create a set of strings. There is nothing new. Set of strings is used very widely in code. Nothing special.

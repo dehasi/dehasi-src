@@ -1,8 +1,6 @@
 ---
 layout: post
 title:  "Mergesort with Fork Join Pool"
-date:   2017-06-06 22:13:28 +0100
-categories: jekyll update java
 ---
 
 The simplest task which shows how the fork-join framework works is Mergesort. Mergesort is a simple and well-known algorithm for arrays sorting. 

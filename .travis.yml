@@ -1,0 +1,42 @@
+language: ruby
+rvm:
+  - 2.6.3
+before_install: 
+  # Decrypt the git_deploy_key.enc key into /tmp/git_deploy_key
+  - openssl aes-256-cbc -K $encrypted_bea0181439c1_key -iv $encrypted_bea0181439c1_iv -in git_deploy_key.enc -out /tmp/git_deploy_key -d
+  # Make sure only the current user can read the private key
+  - chmod 600 /tmp/git_deploy_key
+  # Create a script to return the passphrase environment variable to ssh-add
+  - echo 'echo ${SSH_PASSPHRASE}' > /tmp/askpass && chmod +x /tmp/askpass
+  # Start the authentication agent
+  - eval "$(ssh-agent -s)"
+  # Add the key to the authentication agent
+  - DISPLAY=":0.0" SSH_ASKPASS="/tmp/askpass" setsid ssh-add /tmp/git_deploy_key </dev/null
+
+#install:
+#  - gem install jekyll
+#  - gem install html-proofer
+
+services:
+  - docker
+
+script:
+  - make travis
+
+# branch whitelist, only for GitHub Pages
+branches:
+  only:
+  - master
+  - /pages-(.*)/ # test every branch which starts with "pages-"
+
+
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+
+cache: bundler # caching bundler gem packages will speed up build
+
+# Optional: disable email notifications about the outcome of your builds
+notifications:
+  email: false
