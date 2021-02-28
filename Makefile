@@ -10,7 +10,6 @@ run:
 
 .PHONY: local
 local:
-	git submodule add -f git@github.com:dehasi/dehasi.github.io.git _site
 	docker run --rm --volume="`pwd`:/srv/jekyll" -it jekyll/jekyll jekyll build
 	cd _site &&  \
 	git add . && \
@@ -20,7 +19,6 @@ local:
 
 .PHONY: travis
 travis:
-	git submodule add -f git@github.com:dehasi/dehasi.github.io.git _site
 	docker run --rm --volume="`pwd`:/srv/jekyll" -it jekyll/jekyll jekyll build
 	cd _site &&  \
 	git add . && \
@@ -28,8 +26,11 @@ travis:
 	git push origin
 
 
+.PHONY: module
+module:
+	git submodule add -f git@github.com:dehasi/dehasi.github.io.git _site
+
+
 .PHONY: clean
 clean:
-	git rm -f .gitmodules || true
-	git rm -f _site || true
-	rm -rf _site .jekyll-cache .git/modules .gitmodules
+	rm -rf .jekyll-cache
