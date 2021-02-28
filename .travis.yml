@@ -11,7 +11,7 @@ before_install:
   # Start the authentication agent
   - eval "$(ssh-agent -s)"
   # Add the key to the authentication agent
-  - DISPLAY=":0.0" SSH_ASKPASS="/tmp/askpass"  ssh-add /tmp/git_deploy_key -vvv </dev/null
+  - DISPLAY=":0.0" SSH_ASKPASS="/tmp/askpass" setsid -w  ssh-add /tmp/git_deploy_key </dev/null
   - ssh-agent -k
 
 #install:
