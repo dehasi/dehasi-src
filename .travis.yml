@@ -15,8 +15,8 @@ before_install:
   - export DISPLAY=":0.0"
   - echo ${DISPLAY}
   - export SSH_ASKPASS="/tmp/askpass"
-  - ssh-agent bash -c "ssh-add /tmp/git_deploy_key"  < /dev/null
-  - ssh-agent -k
+  - setsid ssh-add /tmp/git_deploy_key </dev/null
+#  - ssh-agent -k
 
 #install:
 #  - gem install jekyll
