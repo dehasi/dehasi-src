@@ -9,7 +9,8 @@ before_install:
   # Create a script to return the passphrase environment variable to ssh-add
   - echo 'echo ${SSH_PASSPHRASE}' > /tmp/askpass && chmod +x /tmp/askpass
   # Start the authentication agent
-  - eval "$(ssh-agent -s)"
+  - eval "$(ssh-agent)"
+  - ls -la /tmp/
   # Add the key to the authentication agent
   - export DISPLAY=":0.0"
   - echo ${DISPLAY}
