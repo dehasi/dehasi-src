@@ -16,7 +16,8 @@ before_install:
   - echo ${DISPLAY}
   - export SSH_ASKPASS="/tmp/askpass"
   - export SSH_ASKPASS_REQUIRE="prefer"
-  - setsid ssh-add /tmp/git_deploy_key # </dev/null
+  - DISPLAY=":0" SSH_ASKPASS="/tmp/askpass" setsid ssh-add /tmp/git_deploy_key </dev/null
+#  - setsid ssh-add /tmp/git_deploy_key # </dev/null
 #  - ssh-agent -k
 
 #install:
