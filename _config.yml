@@ -14,6 +14,9 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: Ravil Galeyev
+author:
+  name: dehasi
+  email: ravil@mailforspam.com
 email: ravil@mailforspam.com
 description: >- # this means to ignore newlines until "baseurl:"
   There is no unique content.
@@ -29,7 +32,12 @@ markdown: kramdown
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-asciidoc
 
+asciidoctor:
+  attributes:
+    - imagesdir=/assets/images
+    - imagesoutdir=/assets/images
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
@@ -44,3 +52,5 @@ exclude:
   - dehasi-src.iml
   - docker_build.sh
   - Makefile
+  - git_deploy_key.enc
+  - Dockerfile

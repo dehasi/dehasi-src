@@ -1,7 +1,6 @@
 _site
 .idea
-.sass-cache
+*.iml
 .jekyll-metadata
 .jekyll-cache
-*.lock
-*.iml
+.sass-cache

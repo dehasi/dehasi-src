@@ -1,0 +1,85 @@
+---
+layout: post
+published: true
+---
+
+= Add AsciiDoc to Jekyll
+:eqnums:
+:stem: latexmath
+
+It's mostly copy-paste https://www.crystal-growth.net/jekyll/2020/10/16/jekyll-setup.html[this] source
+
+== Update Gemfile to have asciidoc
+[source,ruby]
+----
+gem "minima", github: "jekyll/minima" // <1>
+
+group :jekyll_plugins do
+  gem "jekyll-feed", "~> 0.12"
+
+  gem 'jekyll-asciidoc' // <2>
+  gem 'jekyll-archives'
+  gem 'asciidoctor-diagram' 
+end
+----
+<1> To be able to add extentions to headers
+<2> Asciidoc gems
+
+Update `_config.yaml`
+[source,yaml]
+----
+plugins:
+  - jekyll-feed
+  - jekyll-asciidoc
+
+asciidoctor: <1>
+  attributes:
+    - imagesdir=/assets/images
+    - imagesoutdir=/assets/images
+----
+<1> To be able to use plantUml
+
+== Extend header to use latex
+Create `_includes/custom-head.html` and add the following content
+[source, xml]
+----
+include::../_includes/custom-head.html[]
+----
+
+Add the following headers
+[source, asciidoc]
+----
+:eqnums:
+:stem: latexmath
+----
+
+Then you can use equations
+latexmath:[$$C = \alpha + \beta Y^{\gamma} + \epsilon$$]
+
+
+This is a numbered equation \eqref{myequation}
+
+
+PlantUML diagrams as well
+[plantuml, jekyll-asciidoc-expample]
+....
+digraph G {
+  A -> B
+}
+....
+
+[stem]
+++++
+\begin{equation}\label{myequation}
+c^2 = a^2 + b^2 + 5
+\end{equation}
+++++
+
+=== Build from docker
+Original Jekyll images uses Arch linux with minimal setup. And there is no requreeed fonts.
+We need to exted it
+
+[source, dockerfile]
+----
+include::../Dockerfile[]
+----

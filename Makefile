@@ -5,7 +5,7 @@ build:
 
 .PHONY: run
 run:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it  --publish 4000:4000 jekyll/jekyll jekyll serve --drafts
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it  --publish 4000:4000  dehasi/jekyll jekyll serve --drafts --trace
 
 
 .PHONY: local
