@@ -10,7 +10,7 @@ run:
 
 .PHONY: local
 local:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it jekyll/jekyll jekyll build
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll jekyll build
 	cd _site &&  \
 	git add . && \
 	git commit  -a --message "Local build" && \
@@ -19,7 +19,7 @@ local:
 
 .PHONY: travis
 travis:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it jekyll/jekyll jekyll build
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll jekyll build
 	cd _site &&  \
 	git add . && \
 	git commit  -a --message "Travis build: ${TRAVIS_BUILD_NUMBER}" && \
