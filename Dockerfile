@@ -6,4 +6,4 @@ RUN apk update && apk upgrade && \
 RUN mkdir /graphviz && \
   apk add --update graphviz
 
-# docker build . -t dehasi/jekyll
+# docker build . -t dehasi/jekyll:4

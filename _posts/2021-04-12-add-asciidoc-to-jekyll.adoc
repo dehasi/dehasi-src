@@ -4,10 +4,20 @@ published: true
 ---
 
 = Add AsciiDoc to Jekyll
+:source-highlighter: rouge
 :eqnums:
 :stem: latexmath
 
-It's mostly copy-paste https://www.crystal-growth.net/jekyll/2020/10/16/jekyll-setup.html[this] source
+It's mostly copy-paste of https://www.crystal-growth.net/jekyll/2020/10/16/jekyll-setup.html[this] source
+
+== Build from docker
+Original Jekyll images uses Arch linux with minimal setup. And there is no requreeed fonts.
+We need to exted it
+
+[source, dockerfile]
+----
+include::../Dockerfile[]
+----
 
 == Update Gemfile to have asciidoc
 [source,ruby]
@@ -38,6 +48,15 @@ asciidoctor: <1>
     - imagesoutdir=/assets/images
 ----
 <1> To be able to use plantUml
+
+== Source highlighting
+
+To highlight systax add the following header
+
+[source, asciidoc]
+----
+:source-highlighter: rouge
+----
 
 == Extend header to use latex
 Create `_includes/custom-head.html` and add the following content
@@ -75,11 +94,3 @@ c^2 = a^2 + b^2 + 5
 \end{equation}
 ++++
 
-=== Build from docker
-Original Jekyll images uses Arch linux with minimal setup. And there is no requreeed fonts.
-We need to exted it
-
-[source, dockerfile]
-----
-include::../Dockerfile[]
-----
