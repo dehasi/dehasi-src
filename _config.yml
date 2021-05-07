@@ -33,6 +33,12 @@ minima:
     github: dehasi
     linkedin: ravil-galeyev-9a7540102
 
+header_pages:
+  - headers/projects.md
+  - headers/notes.md
+  - headers/speaking.md
+  - headers/about.md
+
 plugins:
   - jekyll-asciidoc
 #  - jekyll-feed
