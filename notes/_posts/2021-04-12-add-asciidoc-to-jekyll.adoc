@@ -16,7 +16,7 @@ We need to exted it
 
 [source, dockerfile]
 ----
-include::../Dockerfile[]
+include::../../Dockerfile[]
 ----
 
 == Update Gemfile to have asciidoc
@@ -62,7 +62,7 @@ To highlight systax add the following header
 Create `_includes/custom-head.html` and add the following content
 [source, xml]
 ----
-include::../_includes/custom-head.html[]
+include::../../_includes/custom-head.html[]
 ----
 
 Add the following headers
