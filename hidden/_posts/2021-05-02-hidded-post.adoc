@@ -1,0 +1,8 @@
+---
+layout: post
+published: true
+---
+
+= The first hidden post
+
+This is just an example of a hidden post.

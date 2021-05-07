@@ -1,13 +1,17 @@
 ---
-layout: default
-title: Notes
-permalink: notes/
+layout: page
+title: Hidden
+permalink: /hidden
 ---
 
+Congratulations!
+
+You've found a hidden page =)
+
 <div class="home">
-  {%- if site.categories.notes.size > 0 -%}
+  {%- if site.categories.hidden.size > 0 -%}
     <ul class="post-list">
-      {%- for post in site.categories.notes -%}
+      {%- for post in site.categories.hidden -%}
       <li>
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         <!--
@@ -25,6 +29,6 @@ permalink: notes/
       {%- endfor -%}
     </ul>
 
-  {%- endif -%}
+{%- endif -%}
 
 </div>

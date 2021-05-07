@@ -36,7 +36,7 @@ minima:
 header_pages:
   - headers/projects.md
   - headers/notes.md
-  - headers/speaking.adoc
+  - headers/speaking.md
   - headers/about.md
 
 plugins:
