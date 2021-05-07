@@ -5,9 +5,9 @@ permalink: notes/
 ---
 
 <div class="home">
-  {%- if site.posts.size > 0 -%}
+  {%- if site.categories.notes.size > 0 -%}
     <ul class="post-list">
-      {%- for post in site.posts -%}
+      {%- for post in site.categories.notes -%}
       <li>
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         <!--

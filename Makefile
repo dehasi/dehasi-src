@@ -1,16 +1,16 @@
 .PHONY: build
 build:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll jekyll build
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll:4.1 jekyll build
 
 
 .PHONY: run
 run:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it  --publish 4000:4000  dehasi/jekyll jekyll serve --drafts --trace
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it  --publish 4000:4000  dehasi/jekyll:4.1 jekyll serve --drafts --trace
 
 
 .PHONY: local
 local:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll jekyll build
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll:4.1 jekyll build
 	cd _site &&  \
 	git add . && \
 	git commit  -a --message "Local build" && \
@@ -19,7 +19,7 @@ local:
 
 .PHONY: travis
 travis:
-	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll jekyll build
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it dehasi/jekyll:4.1 jekyll build
 	cd _site &&  \
 	git add . && \
 	git commit  -a --message "Travis build: ${TRAVIS_BUILD_NUMBER}" && \

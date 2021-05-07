@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Speaking
-permalink: /speaking/
+permalink: /speaking
 ---
 
 There is a page when I'm going to keep my public speaking presentations and summaries.
@@ -9,7 +9,8 @@ There is a page when I'm going to keep my public speaking presentations and summ
 ### Conferences
 
 | Conference | Date | Location |
-|:----------:|:--:|:------:|
+|:----------:|:----:|:--------:|
+| [Apache Ignite Lightning Talks](https://www.meetup.com/Apache-Ignite-Virtual-Meetup/events/273921637/) | October 20, 2020 | Online |
 | [Data Science Summit](https://dssconf.pl) | June 14, 2019 | Warsaw, Poland |
 
 
@@ -21,3 +22,6 @@ Apache Ignite is a distributed in-memory data grid. Apache Ignite Machine Learni
 
 
 > This talk was given at [Data Science Summit](https://dssconf.pl) in Polish langauge
+
+#### What you can learn from your distributed data?
+> This talk was given at [Apache Ignite Lightning Talks](https://www.meetup.com/Apache-Ignite-Virtual-Meetup/events/273921637/) in English
