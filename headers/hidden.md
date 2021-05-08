@@ -1,7 +1,7 @@
 ---
-layout: page
+layout: default
 title: Hidden
-permalink: /hidden
+permalink: /hidden/
 ---
 
 Congratulations!
