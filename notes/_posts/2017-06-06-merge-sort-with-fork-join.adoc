@@ -1,7 +1,12 @@
 ---
 layout: post
-title:  "Mergesort with Fork Join Pool"
+published: true
 ---
+
+= Mergesort with Fork Join Pool
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
 
 The simplest task which shows how the fork-join framework works is Mergesort. Mergesort is a simple and well-known algorithm for arrays sorting. 
 The main idea is split array for small chunks, sort them and then merge already sorted chunks in the one array.  
@@ -12,7 +17,8 @@ It is very obvious that the merge part in the merge sort is a joining part. And 
 
 Let's write some code. Let's write the merge function first:
 
-{% highlight java %}
+[source,java]
+----
 public static List<Long> merge(List<Long> a, List<Long> b) {
     int i=0, j=0;
     List<Long> result = new ArrayList<>(a.size() + b.size());
@@ -44,7 +50,7 @@ public static long[] merge(long[] a, long[] b) {
 
     return answer;
 }
-{% endhighlight %}
+----
 
 Now, when we able to merge a result let's write a task for the fork-join pool. 
 There are few types of task for the fork-join pool. All of then are inherited from ForkJoinTask. 
@@ -55,7 +61,8 @@ First of all, I want to sort an array manually if it small. That's why I set up 
 If the input array is equal or less than the threshold I sort it by Stream API. Otherwise, I'll split it to two arrays, 
 execute the same task recursively and then just merge the result.
 
-{% highlight java %}
+[source,java]
+----
 public static class MergeTask extends RecursiveTask<List<Long>> {
     private static final int THRESHOLD = 4;
     private final List<Long> list;
@@ -77,12 +84,13 @@ public static class MergeTask extends RecursiveTask<List<Long>> {
         return merge(left.join(), right.join());
     }
 }
-{% endhighlight %}
+----
 
 The most part of work is already done. Let's just write some test and run it. 
-I also wrote a function which generates an array and the function which tests is an array sorted. 
+I also wrote a function which generates an array and the function which tests is an array sorted.
 
-{% highlight java %}
+[source,java]
+----
 public class FJMergeSort {
 
     public static void main(String[] args) {
@@ -172,13 +180,12 @@ public class FJMergeSort {
         return true;
     }
 }
-{% endhighlight %}
+----
 Merge sort is a good example how the fork-join pool works. But in real life, the best (and shortest) way to sort an array is using Stream API:
 
-{% highlight java %}
+[source,java]
+----
 List<Long> list = asList(4L, 3L, 1L).stream().parallel().sorted().collect(toList());
-{% endhighlight %}
+----
 
-This post is my attempt to learn jekyll and github pages. The oroginal of my post was published [here][ms-goog].                  
-
-[ms-goog]: https://rgaleyev.blogspot.com/2017/06/mergesort-with-fork-join-poll.html
+This post is my attempt to learn jekyll and github pages. The oroginal of my post was published https://rgaleyev.blogspot.com/2017/06/mergesort-with-fork-join-poll.html[here].
