@@ -1,0 +1,77 @@
+---
+layout: post
+published: true
+---
+
+= Dockerize wiremock
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+Please, visit http://wiremock.org/[wiremock] for the official documentation.
+
+Inspired by https://stackoverflow.com/questions/32727594/how-to-pass-arguments-to-shell-script-through-docker-run[stackoverflow] question.
+[source, dockerfile]
+----
+include::../../notes/dockerize-wiremock/Dockerfile[]
+----
+
+== Build
+[source, shell]
+----
+docker build . -t dehasi/wiremock
+----
+
+== Run
+[source,shell]
+----
+docker run --rm -it \
+    -p 8080:7070  \
+    -v $(pwd)/mappings:/home/wiremock/mappings \
+    -v $(pwd)/files:/home/wiremock/__files \
+    dehasi/wiremock --port 7070 # we can add any params here
+----
+
+== Example
+
+All mappings should be in `mappings` directory.
+In example, there is `hello.json` in mappings
+[source, json]
+----
+include::../../notes/dockerize-wiremock/mappings/hello.json[]
+----
+
+All mappings should be in `__files` directory.
+There is `hello.json` in `__files` directory.
+[source, json]
+----
+include::../../notes/dockerize-wiremock/files/hello.json[]
+----
+
+If we run the comand above, we'll we that wiremock started on 7070 port.
+[source,shell]
+----
+ /$$      /$$ /$$                     /$$      /$$                     /$$
+| $$  /$ | $$|__/                    | $$$    /$$$                    | $$
+| $$ /$$$| $$ /$$  /$$$$$$   /$$$$$$ | $$$$  /$$$$  /$$$$$$   /$$$$$$$| $$   /$$
+| $$/$$ $$ $$| $$ /$$__  $$ /$$__  $$| $$ $$/$$ $$ /$$__  $$ /$$_____/| $$  /$$/
+| $$$$_  $$$$| $$| $$  \__/| $$$$$$$$| $$  $$$| $$| $$  \ $$| $$      | $$$$$$/
+| $$$/ \  $$$| $$| $$      | $$_____/| $$\  $ | $$| $$  | $$| $$      | $$_  $$
+| $$/   \  $$| $$| $$      |  $$$$$$$| $$ \/  | $$|  $$$$$$/|  $$$$$$$| $$ \  $$
+|__/     \__/|__/|__/       \_______/|__/     |__/ \______/  \_______/|__/  \__/
+
+port:                         7070
+enable-browser-proxying:      false
+disable-banner:               false
+no-request-journal:           false
+verbose:                      false
+----
+
+As we mapped 7070 to 8080, we have to use 8080
+[source, shell]
+----
+$ curl http://localhost:8080/hello
+{
+  "message": "Hello World !"
+}
+----
