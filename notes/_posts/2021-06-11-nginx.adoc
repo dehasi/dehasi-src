@@ -1,0 +1,31 @@
+---
+layout: post
+published: true
+---
+
+= NginX
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+
+== Run static site
+
+----
+docker run -it --rm --detach --publich 8080:80 \
+  --volume ~/site:/usr/share/nginx/html
+  nginx
+----
+
+The root is `usr/share/nginx/html/index.html`
+
+== Build an image
+
+[source,dockerfile]
+----
+include::../../notes/nginx/Dockerfile[]
+----
+
+== Configuration
+
+The config is in `/etc/nginx/nginx.conf` and `/etc/nginx/conf.d/default.conf`.
