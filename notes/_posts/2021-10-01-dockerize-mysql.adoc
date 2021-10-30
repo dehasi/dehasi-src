@@ -1,0 +1,177 @@
+---
+layout: post
+published: true
+---
+
+= Adding data to MySQL container
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+== Mount scripts
+
+MySQL container applies scripts from `/docker-entrypoint-initdb.d/` folder.
+
+For example.
+[source, bash]
+----
+ls data/
+000-create-users.sql    001-create-table.sql    002-add-data.sql
+----
+The content is simple, just for demonstration.
+
+[source, sql]
+----
+include::../../notes/dockerize-mysql/data/000-create-users.sql[]
+----
+[source, sql]
+----
+include::../../notes/dockerize-mysql/data/001-create-table.sql[]
+----
+[source, sql]
+----
+include::../../notes/dockerize-mysql/data/002-add-data.sql[]
+----
+*Important:* `/docker-entrypoint-initdb.d/` doesn't support catalogs, so only plain structure.
+
+Now if we run docker with mounted scripts
+[source, bash]
+----
+docker run --rm --detach \
+    --publish 12345:3306 \
+    --volume ${PATH_TO}/data/:/docker-entrypoint-initdb.d  \
+    --env MYSQL_ROOT_PASSWORD=root \
+    mysql:8
+----
+
+We can see them in `docker logs ${container_hash}`
+[source, logs]
+----
+2021-10-29 17:44:22+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/000-create-users.sql
+2021-10-29 17:44:22+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/001-create-table.sql
+2021-10-29 17:44:22+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/002-add-data.sql
+----
+
+Connect and check
+----
+mysql --host=127.0.0.1  --port 12345 --user=root --password=root
+mysql> use mydb;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select * from my_table;
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
++----+
+3 rows in set (0.00 sec)
+----
+
+== Create an image with data
+
+MySQL keeps all data in `/var/lib/mysql` in binary format.
+When we run a container, it applies scripts from `/docker-entrypoint-initdb.d/` and keep result in `/var/lib/mysql`.
+If we save data from `/var/lib/mysql` and reuse it to create another image with preset binary data.
+
+The project structure
+----
+$ tree
+.
+|-- Dockerfile
+`-- data
+    |-- 000-create-users.sql
+    |-- 001-create-table.sql
+    `-- 002-add-data.sql
+----
+
+Dockerfile is the following
+[source, dockerfile]
+----
+include::../../notes/dockerize-mysql/Dockerfile[]
+----
+
+In mysql container the entrypoint is `/usr/local/bin/docker-entrypoint.sh`.
+Source on https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh[github].
+
+The most important part for us is
+[source, bash]
+----
+_main() {
+    # skip setup if they aren't running mysqld or want an option that stops mysqld
+	if [ "$1" = 'mysqld' ] && ! _mysql_want_help "$@"; then
+      #### skipped some lines
+    fi;
+   exec "$@"
+}
+----
+
+We have to run setup, therefore `mysqld`, but we don't want to run `exec "$@"` it starts the database.
+To avoid it we have to remove this line.
+I.e. with `sed` help.
+
+*Important:* the root password is inherited from the `builder` container and can't be changed.
+Consider `--build-arg` if you don't want to hardcode it.
+
+If we run
+[source, bash]
+----
+docker build . --tag dehasi/db
+
+docker run --rm --detach --publish 12345:3306 dehasi/db
+5caf259ae551f4dfc31a54f479ab1b02560dce7c1dcdbae60559b1cc74ae689b
+----
+
+We see no scripts in `docker logs 5caf259ae551f4dfc31a54f479ab1b02560dce7c1dcdbae60559b1cc74ae689b`
+----
+2021-10-29 18:19:52+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.27-1debian10 started.
+2021-10-29 18:19:52+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2021-10-29 18:19:52+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.27-1debian10 started.
+2021-10-29T18:19:52.615741Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.27) starting as process 1
+2021-10-29T18:19:52.626112Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2021-10-29T18:19:52.817474Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2021-10-29T18:19:53.036272Z 0 [Warning] [MY-013746] [Server] A deprecated TLS version TLSv1 is enabled for channel mysql_main
+2021-10-29T18:19:53.036321Z 0 [Warning] [MY-013746] [Server] A deprecated TLS version TLSv1.1 is enabled for channel mysql_main
+2021-10-29T18:19:53.037276Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2021-10-29T18:19:53.037335Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2021-10-29T18:19:53.039121Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+2021-10-29T18:19:53.056349Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+2021-10-29T18:19:53.056460Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.27'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+----
+
+But data is there.
+----
+$ mysql --host=127.0.0.1  --port 12345 --user=root --password=pass mydb
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql> select * from my_table;
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
++----+
+3 rows in set (0.00 sec)
+----
+
+== Testcontainers
+
+https://www.testcontainers.org/[Testcontainers] allow mounting
+
+[source, java]
+----
+@Container
+protected static final MySQLContainer<?> MY_SQL_CONTAINER = new MySQLContainer<>("mysql:8")
+        .withFileSystemBind("src/test/resources/database/", "/docker-entrypoint-initdb.d/", READ_ONLY);
+----
+
+`MySQLContainer` has also `withInitScript` method.
+[source, java]
+----
+@Container
+protected static final MySQLContainer<?> MY_SQL_CONTAINER = new MySQLContainer<>("mysql:8")
+        .withInitScript("database/init.sql");
+----
