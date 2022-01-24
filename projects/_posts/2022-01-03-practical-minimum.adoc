@@ -1,0 +1,15 @@
+---
+layout: post
+published: true
+---
+
+= Practical Minimum
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+:page-excerpt:
+Semester course in Saint-Petersburg https://compscicenter.ru/[Computer Science Center].
+
+
+The https://compscicenter.ru/courses/practical-minimum/[course page].

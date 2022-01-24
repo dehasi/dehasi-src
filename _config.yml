@@ -16,7 +16,7 @@
 title: Ravil Galeyev
 author:
   name: dehasi
-  email: neboskrebb@gmail.com
+  email: dehasi@protonmail.com
 email: neboskrebb@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   There is no unique content.
@@ -27,6 +27,8 @@ permalink: /:categories/:title:output_ext
 
 markdown: kramdown
 theme: minima
+#show_excerpts: true
+
 minima:
   social_links:
     twitter: rgaleyev

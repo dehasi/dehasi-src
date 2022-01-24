@@ -1,0 +1,15 @@
+---
+layout: post
+published: true
+---
+
+= Apache Ignite Machine Learning Module
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+Machine Leaning module in https://ignite.apache.org/[Apache Ignite].
+
+I implemented few Bayesian algorithms.
+
+My humble https://github.com/apache/ignite/commits?author=dehasi[commits]

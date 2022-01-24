@@ -1,0 +1,41 @@
+---
+layout: post
+published: true
+---
+
+= ZeLiba
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+:page-excerpt:
+https://github.com/dehasi/zeliba[ZeLiba] is a DSL-ish library to make comparisons more readable.
+Also, provides pattern-matching for Java 8.
+
+== Examples
+
+[source, java]
+----
+Comparable<T> val1 = ...
+Comparable<T> val2 = ...
+
+if (the(val1).isGreaterThan(val2)) {...}
+
+if (the(val2).isLessThan(val1)) {...}
+----
+
+[source, java]
+----
+public static void main(String[] args) {
+String language = (args.length == 0) ? "EN" : args[0];
+
+    System.out.println(when(language)
+        .is("EN").then("Hello!")
+        .is("FE").then("Salut!")
+        .is("ES").then("Hola!")
+        .orElse(format("Sorry, I can't greet you in %s yet", language))
+    );
+}
+----
+
+see more https://github.com/dehasi/zeliba#Examples[Examples]

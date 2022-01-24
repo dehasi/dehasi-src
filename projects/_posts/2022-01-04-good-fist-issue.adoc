@@ -1,0 +1,16 @@
+---
+layout: post
+published: true
+---
+
+= Good Fist Issue
+:source-highlighter: rouge
+:eqnums:
+:stem: latexmath
+
+:page-excerpt:
+Chrome plugin to see labels of issues.
+
+image:../../projects/good-first-issue/screenshot.png[]
+
+Code is on https://github.com/dehasi/good-first-issue[github]
