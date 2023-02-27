@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Test with Spring Cloud Contract"
+published: false
 ---
 
 Spring cloud contract is a powerful tool for testing and mocking. 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Comparator tricks"
+published: false
 ---
 
 Let's create a set of strings. There is nothing new. Set of strings is used very widely in code. Nothing special.

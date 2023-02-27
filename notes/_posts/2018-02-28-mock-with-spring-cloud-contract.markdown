@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Mock with Spring Cloud Contract"
+published: false
 ---
 
 There are a couple of examples, where an API contract exists.
