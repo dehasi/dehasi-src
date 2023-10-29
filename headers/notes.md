@@ -1,8 +1,10 @@
 ---
-layout: page
+layout: default
 title: Notes
 permalink: notes
 ---
+
+# Notes
 
 <div class="home">
   {%- if site.categories.notes.size > 0 -%}
