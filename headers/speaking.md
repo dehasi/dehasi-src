@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Speaking
-permalink: /speaking
+permalink: speaking
 ---
 
 There is a page when I'm going to keep my public speaking presentations and summaries.

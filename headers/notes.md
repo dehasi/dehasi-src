@@ -1,7 +1,7 @@
 ---
-layout: default
+layout: page
 title: Notes
-permalink: notes/
+permalink: notes
 ---
 
 <div class="home">

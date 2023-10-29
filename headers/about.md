@@ -1,11 +1,14 @@
 ---
 layout: page
 title: About
-permalink: /about/
+permalink: about
 ---
-
-I'm an Amsterdam based backend developer.
 
 I'll put some valuable content to this page later.
 
-So far you can visit my [linkedin](https://www.linkedin.com/in/ravil-galeyev-9a7540102) or [stackoverflow](https://stackoverflow.com/story/dehasi) profiles.
+So far you can visit my 
+* [LinkedIn](https://www.linkedin.com/in/ravil🐳-galeyev-9a7540102)
+* [GitHub](https://github.com/dehasi)
+* [StackOverflow](https://stackoverflow.com/story/dehasi)
+
+but there is nothing interesting :)

@@ -8,7 +8,7 @@ published: true
 :eqnums:
 :stem: latexmath
 
-It's mostly copy-paste of https://www.crystal-growth.net/jekyll/2020/10/16/jekyll-setup.html[this] source
+It's mostly copy-paste of https://www.crystal-growth.net/etc/basic-jekyll-site[this] source
 
 == Build from docker
 Original Jekyll images uses Arch linux with minimal setup. And there is no requreeed fonts.
