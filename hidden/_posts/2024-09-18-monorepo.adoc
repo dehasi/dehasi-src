@@ -1,0 +1,397 @@
+---
+layout: post
+published: true
+---
+
+= Monorepo
+:toc:
+
+Slides https://docs.google.com/presentation/d/1EUG6NfWTwdHiQ44I3HnK_euNHB5YbH9klTiyhA2ZfIo/edit#slide=id.p
+
+== Into
+
+One project, one repository, one CI job is the most popular setup.
+However, not always most convenient.
+
+When one repository keeps few projects, we call it monorepository => monorepo.
+In monorepo we can apply changes to multiple modules via atomic commits.
+
+Big-known companies use monorepo. I.e:
+
+* Google keeps everything in `Piper` and builds with `Bazel`. https://qeunit.com/blog/how-google-does-monorepo/[link]
+* Facebook keeps everything in `Mercurial` and builds with `Buck`. https://softwareengineering.stackexchange.com/questions/452535/why-does-meta-facebook-use-mono-repo-in-their-source-control[link]
+* Uber https://www.uber.com/en-NL/blog/go-monorepo-bazel/[link]
+
+You don't have to be a Google to have a monorepo.
+
+In this post, I'll tell how to build a monorepo with `Git`, `Maven` and `Jenkins`.
+Which problems it solves and which problems it brings.
+
+== Problem
+
+As an example, I'll describe web-services and libraries. How
+
+In microservice architecture, you can have few independent web-services.
+
+.Just a few services
+[plantuml]
+----
+@startuml
+digraph G {
+ WS_1 [shape=rectange]
+ WS_2 [shape=rectange]
+}
+@enduml
+----
+
+However, there will be common parts.
+And you can choose: have duplicates or extract a library.
+
+.Common parts are shown as grey
+[plantuml]
+----
+digraph G {
+  ws1 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td bgcolor="yellow">WS_1</td></tr>
+      <tr><td bgcolor="grey"> </td></tr>
+    </table>>];
+
+  ws2  [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>WS_2</td></tr>
+      <tr><td bgcolor="grey"> </td></tr>
+    </table>>];
+}
+----
+
+If you extract a library, both web-services become depended on it.
+
+.Don't Repeat Yourself
+[plantuml]
+----
+digraph G {
+
+  WS_1 -> Lib
+  WS_2 -> Lib
+
+  WS_1 [shape="rectangle" style="filled" shape=box color=black  fillcolor=yellow]
+  WS_2 [shape="rectangle"]
+  Lib [shape="rectangle" style="filled" shape=box color=black  fillcolor=grey]
+}
+----
+
+Usually, it leads to libraries with very broad names.
+Every project/company can have libraries:
+
+* core-lib
+* common-lib
+* database-lib
+* util-lib
+* shared-lib
+
+
+It ends up with different web-services have different versions
+
+.Different versions
+[plantuml]
+----
+digraph G {
+splines=false;
+  WS_1 -> Lib [label="1.2.3" color=white ]
+  WS_1 -> Lib [label="" ]
+  WS_2 -> Lib [label="3.2.1"]
+
+  WS_1 [shape="rectangle" style="filled" shape=box color=black  fillcolor=yellow]
+  WS_2 [shape="rectangle"]
+  Lib [shape="rectangle" style="filled" shape=box color=black  fillcolor=grey]
+}
+----
+
+Sometimes when you need to make a change in a service,
+you also need to make a change in a library.
+
+.Change in both places
+[plantuml]
+----
+digraph G {
+
+
+  WS_1 -> Lib
+  WS_2 -> Lib [color=red]
+
+  WS_1 [shape="rectangle" style="filled" shape=box color=black  fillcolor=yellow]
+  WS_2 [shape="rectangle" color=red]
+  Lib [shape="rectangle" style="filled" shape=box color=red  fillcolor=grey]
+}
+----
+
+Which leads to problems:
+
+* The logic is spread
+* Two pull requests (at least two)
+* Not easy to test together
+* Change in the common library can break another service
+* Two releases (at least two)
+
+.Dependency hell image https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[source]
+image::../../hidden/monorepo/dependency-hell.png[]
+
+Which eventually leads to https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
+
+Use can use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin]
+so see a graph of dependencies in your project.
+
+== Solution
+What do we want:
+
+* Release easier
+* Know if changes lead to other builds failure
+* Have one PR with all changes
+
+Also:
+
+* Get rid of dependency hell
+* Have one common version
+* Release notes
+
+To achieve that, we put all projects into one repository and setup CI.
+
+=== Put Code into One Repository
+
+Git allows you to merge few repos and keep history.
+
+[source, shellscript]
+----
+# We are in the monorepo folder.
+# We want to add to the monorepo a new repo
+# The new repo lives in /path/to/repo
+git remote add ${remote_name} /path/to/repo
+git merge ${remote_name}/master --allow-unrelated-histories -m ""
+git push --tags
+----
+
+=== Explain to Jenkins What to Build
+
+We can check `currentBuild.changeSets`
+
+[source, groovy]
+----
+stages {
+    stage('core-lib') {
+        when {
+            changeset 'core-lib/**'
+        }
+        steps {
+            sh '''
+                cd core-lib
+                mvn clean install
+            '''
+        }
+    }
+    stage('util-lib') {
+        when {
+            changeset 'util-lib/**'
+        }
+        steps {
+            sh '''
+                cd util-lib
+                mvn clean install
+            '''
+        }
+    }
+}
+----
+
+If `core-lib` depends on `util-lib` a build will fail.
+
+The bigger problem is that Jenkins can't recognize a changeset from a PR https://issues.jenkins.io/browse/JENKINS-54285[JENKINS-54285].
+
+[source, shellscript]
+----
+git diff --name-only ${BRANCH} master
+----
+
+The solution from the ticket above
+
+[source, groovy]
+----
+def boolean hasChangesIn(String module) {
+  return !env.CHANGE_TARGET || sh(
+    returnStatus: true,
+    script: "git diff --name-only origin/${env.CHANGE_TARGET}...${env.GIT_COMMIT} | grep ^${module}/"
+  ) == 0
+}
+----
+
+And use `hasChangesIn` function in the pipeline like:
+[source, groovy]
+----
+when {
+  expression {
+    return hasChangesIn('my-dir')
+  }
+}
+----
+
+
+=== Release
+If you don't use `maven-release-plugin` you can skip this part.
+If you use `maven-release-plugin` you might have two unnecessary builds
+and two unnecessary commits.
+
+See https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin]
+
+I'll show how to avoid it.
+You have to build your ar
+
+----
+mvn versions:set -DnewVersion=<version> --quite
+mvn clean deploy -U
+mvn versions:set -DnewVersion=<snapshot> -DgenerateBackupPoms=false
+mvn clean deploy -DskipTests
+
+----
+
+
+People want look at diffs
+IDEA allows search
+in commits but not in tags
+
+
+Sometimes artificail commits might be necessary/
+
+
+=== Monomaven
+
+----
+mvn clean install -amd
+----
+
+.Upload an artifact to a repository
+[plantuml]
+----
+digraph G {
+  rankdir=LR;
+
+  DEV_1 -> JENKINS [label="git push"]
+  JENKINS -> ARTIFACTORY [label="upload"]
+
+  DEV_1 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Developer</td></tr>
+      <tr><td>core-lib</td></tr>
+      <tr><td>1.0-SHAPSHOT</td></tr>
+    </table>>];
+
+  JENKINS [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Jenkins</td></tr>
+      <tr><td>mvn clean deploy</td></tr>
+    </table>>];
+
+  ARTIFACTORY [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Artifactory</td></tr>
+      <tr><td>core-lib-1.0-SHAPSHOT.jar</td></tr>
+    </table>>];
+}
+----
+
+
+.Two developers work on the same artifact might rewrite each other changes.
+[plantuml]
+----
+digraph G {
+  rankdir=LR;
+
+  DEV_1:version -> JENKINS:build1 [label="git push"]
+  DEV_2:version -> JENKINS:build2 [label="git push"]
+  JENKINS:build1 -> ARTIFACTORY:upload1 [label="upload"]
+  JENKINS:build2 -> ARTIFACTORY:upload2 [label="upload" color="red"]
+
+  DEV_1 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Developer_1</td></tr>
+      <tr><td>core-lib</td></tr>
+      <tr><td port="version">1.0-SHAPSHOT</td></tr>
+    </table>>];
+
+  DEV_2 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Developer_2</td></tr>
+      <tr><td>core-lib</td></tr>
+      <tr><td port="version">1.0-SHAPSHOT</td></tr>
+    </table>>];
+
+  JENKINS [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Jenkins</td></tr>
+      <tr><td port="build1">mvn clean deploy</td></tr>
+      <tr><td port="build2">mvn clean deploy</td></tr>
+    </table>>];
+
+  ARTIFACTORY [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Artifactory</td></tr>
+      <tr><td port="upload1">core-lib-1.0-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload2" color="red">core-lib-1.0-SHAPSHOT.jar</td></tr>
+    </table>>];
+}
+----
+
+.Put an artificial version, i.e., a ticket number
+[plantuml]
+----
+digraph G {
+  rankdir=LR;
+
+  DEV_1:version -> JENKINS:build1 [label="git push"]
+  DEV_2:version -> JENKINS:build2 [label="git push"]
+  JENKINS:build1 -> ARTIFACTORY:upload1 [label="upload"]
+  JENKINS:build2 -> ARTIFACTORY:upload2 [label="upload"]
+
+  DEV_1 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Developer_1</td></tr>
+      <tr><td>core-lib</td></tr>
+      <tr><td port="version">JIRA-123-SHAPSHOT</td></tr>
+    </table>>];
+
+  DEV_2 [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Developer_2</td></tr>
+      <tr><td>core-lib</td></tr>
+      <tr><td port="version" color="green">JIRA-321-SHAPSHOT</td></tr>
+    </table>>];
+
+  JENKINS [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Jenkins</td></tr>
+      <tr><td port="build1">mvn clean deploy</td></tr>
+      <tr><td port="build2">mvn clean deploy</td></tr>
+    </table>>];
+
+  ARTIFACTORY [shape=plaintext label=<
+    <table border="0" cellborder="1" cellspacing="0">
+      <tr><td>Artifactory</td></tr>
+      <tr><td port="upload1">core-lib-JIRA-123-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload2" color="green">core-lib-JIRA-321-SHAPSHOT.jar</td></tr>
+    </table>>];
+}
+----
+
+[source, xml]
+----
+<parent>
+    <artifactId>multimodule</artifactId>
+    <groupId>me.dehasi</groupId>
+    <version>TICKET-42-SNAPSHOT</version>
+</parent>
+----
+
+However, it leads to a lots of `pom.xml` in pull request's diff.
+
+To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+
+== New Problems
