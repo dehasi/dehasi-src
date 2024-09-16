@@ -4,9 +4,8 @@ published: true
 ---
 
 = Monorepo
+:source-highlighter: rouge
 :toc:
-
-Slides https://docs.google.com/presentation/d/1EUG6NfWTwdHiQ44I3HnK_euNHB5YbH9klTiyhA2ZfIo/edit#slide=id.p
 
 == Into
 
