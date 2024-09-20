@@ -1,6 +1,7 @@
 ---
 layout: post
 published: true
+permalink: /hidden/monorepo
 ---
 
 = Monorepo
@@ -33,7 +34,7 @@ As an example, I'll describe web-services and libraries. How
 In microservice architecture, you can have few independent web-services.
 
 .Just a few services
-[plantuml]
+[plantuml, two-web-services]
 ----
 @startuml
 digraph G {
@@ -47,7 +48,7 @@ However, there will be common parts.
 And you can choose: have duplicates or extract a library.
 
 .Common parts are shown as grey
-[plantuml]
+[plantuml, two-web-services-common-part]
 ----
 digraph G {
   ws1 [shape=plaintext label=<
@@ -67,7 +68,7 @@ digraph G {
 If you extract a library, both web-services become depended on it.
 
 .Don't Repeat Yourself
-[plantuml]
+[plantuml, two-web-services-use-lib]
 ----
 digraph G {
 
@@ -93,7 +94,7 @@ Every project/company can have libraries:
 It ends up with different web-services have different versions
 
 .Different versions
-[plantuml]
+[plantuml, two-web-services-use-lib-versioning]
 ----
 digraph G {
 splines=false;
@@ -111,7 +112,7 @@ Sometimes when you need to make a change in a service,
 you also need to make a change in a library.
 
 .Change in both places
-[plantuml]
+[plantuml, two-web-services-change]
 ----
 digraph G {
 
@@ -268,7 +269,7 @@ mvn clean install -amd
 ----
 
 .Upload an artifact to a repository
-[plantuml]
+[plantuml, upload-artefact]
 ----
 digraph G {
   rankdir=LR;
@@ -299,7 +300,7 @@ digraph G {
 
 
 .Two developers work on the same artifact might rewrite each other changes.
-[plantuml]
+[plantuml, upload-artefact-rewrite]
 ----
 digraph G {
   rankdir=LR;
@@ -340,7 +341,7 @@ digraph G {
 ----
 
 .Put an artificial version, i.e., a ticket number
-[plantuml]
+[plantuml, upload-artefact-use-ticket-as-version]
 ----
 digraph G {
   rankdir=LR;
