@@ -33,4 +33,5 @@ module:
 
 .PHONY: clean
 clean:
+	docker run --rm --volume="`pwd`:/srv/jekyll" -it  --publish 4000:4000  dehasi/jekyll:4.1 jekyll clean
 	rm -rf .jekyll-cache
