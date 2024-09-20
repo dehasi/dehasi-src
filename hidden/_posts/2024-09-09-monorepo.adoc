@@ -14,13 +14,13 @@ One project, one repository, one CI job is the most popular setup.
 However, not always most convenient.
 
 When one repository keeps few projects, we call it monorepository => monorepo.
-In monorepo we can apply changes to multiple modules via atomic commits.
+In monorepo we can apply changes to multiple projects - modules -  via one commit.
 
 Big-known companies use monorepo. I.e:
 
-* Google keeps everything in `Piper` and builds with `Bazel`. https://qeunit.com/blog/how-google-does-monorepo/[link]
-* Facebook keeps everything in `Mercurial` and builds with `Buck`. https://softwareengineering.stackexchange.com/questions/452535/why-does-meta-facebook-use-mono-repo-in-their-source-control[link]
-* Uber https://www.uber.com/en-NL/blog/go-monorepo-bazel/[link]
+* Google keeps everything in `Piper` and builds with `Bazel`, see https://qeunit.com/blog/how-google-does-monorepo/[how-google-does-monorepo]
+* Facebook keeps everything in `Mercurial` and builds with `Buck`, see https://softwareengineering.stackexchange.com/questions/452535/why-does-meta-facebook-use-mono-repo-in-their-source-control[why-does-meta-facebook-use-mono-repo-in-their-source-control]
+* Uber, see https://www.uber.com/en-NL/blog/go-monorepo-bazel/[go-monorepo-bazel]
 
 You don't have to be a Google to have a monorepo.
 
