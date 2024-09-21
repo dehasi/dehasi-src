@@ -337,9 +337,17 @@ To speed up a monomaven build, see the next section.
 
 === Monomaven [[monomaven]]
 
-----
-mvn clean install -amd
-----
+When projects are spread acros different repositories, developers can work on them without stepping on each other foots.
+However, if developers work on different sections of one artifact, it might lead to problems:
+
+* Constant artifact overriding in artifact repository
+* Long build
+
+==== Separate artifacts
+Let me show the problem with constant artifact overriding.
+Your CI might be different, i.e. you might not upload anything at all. However, in this example, I want to show a potential problem.
+
+When a developer pushes changes, Jenkins builds an artifact and uploads it to an artifact repository.
 
 .Upload an artifact to a repository
 [plantuml, upload-artefact]
@@ -353,7 +361,7 @@ digraph G {
   DEV_1 [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Developer</td></tr>
-      <tr><td>core-lib</td></tr>
+      <tr><td>mono-lib</td></tr>
       <tr><td>1.0-SHAPSHOT</td></tr>
     </table>>];
 
@@ -366,14 +374,16 @@ digraph G {
   ARTIFACTORY [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Artifactory</td></tr>
-      <tr><td>core-lib-1.0-SHAPSHOT.jar</td></tr>
+      <tr><td>mono-lib-1.0-SHAPSHOT.jar</td></tr>
     </table>>];
 }
 ----
 
+When two developers work on the same project, one's developer changes can override others.
+If you deploy this artefact so some test env, you might deploy another developer changes.
 
-.Two developers work on the same artifact might rewrite each other changes.
-[plantuml, upload-artefact-rewrite]
+.Two developers work on the same artifact might override each other changes.
+[plantuml, upload-artefact-override]
 ----
 digraph G {
   rankdir=LR;
@@ -386,14 +396,14 @@ digraph G {
   DEV_1 [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Developer_1</td></tr>
-      <tr><td>core-lib</td></tr>
+      <tr><td>mono-lib</td></tr>
       <tr><td port="version">1.0-SHAPSHOT</td></tr>
     </table>>];
 
   DEV_2 [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Developer_2</td></tr>
-      <tr><td>core-lib</td></tr>
+      <tr><td>mono-lib</td></tr>
       <tr><td port="version">1.0-SHAPSHOT</td></tr>
     </table>>];
 
@@ -407,11 +417,15 @@ digraph G {
   ARTIFACTORY [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Artifactory</td></tr>
-      <tr><td port="upload1">core-lib-1.0-SHAPSHOT.jar</td></tr>
-      <tr><td port="upload2" color="red">core-lib-1.0-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload1">mono-lib-1.0-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload2" color="red">mono-lib-1.0-SHAPSHOT.jar</td></tr>
     </table>>];
 }
 ----
+
+To solve that, we can put something to the artifact name to make them distinguishable.
+I.e. we can put a ticket number into the version. It can be done manually as a firt commit, or Jenkins can do it.
+Jenkins can take a ticket number from a branch name.
 
 .Put an artificial version, i.e., a ticket number
 [plantuml, upload-artefact-use-ticket-as-version]
@@ -427,14 +441,14 @@ digraph G {
   DEV_1 [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Developer_1</td></tr>
-      <tr><td>core-lib</td></tr>
+      <tr><td>mono-lib</td></tr>
       <tr><td port="version">JIRA-123-SHAPSHOT</td></tr>
     </table>>];
 
   DEV_2 [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Developer_2</td></tr>
-      <tr><td>core-lib</td></tr>
+      <tr><td>mono-lib</td></tr>
       <tr><td port="version" color="green">JIRA-321-SHAPSHOT</td></tr>
     </table>>];
 
@@ -448,12 +462,13 @@ digraph G {
   ARTIFACTORY [shape=plaintext label=<
     <table border="0" cellborder="1" cellspacing="0">
       <tr><td>Artifactory</td></tr>
-      <tr><td port="upload1">core-lib-JIRA-123-SHAPSHOT.jar</td></tr>
-      <tr><td port="upload2" color="green">core-lib-JIRA-321-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload1">mono-lib-JIRA-123-SHAPSHOT.jar</td></tr>
+      <tr><td port="upload2" color="green">mono-lib-JIRA-321-SHAPSHOT.jar</td></tr>
     </table>>];
 }
 ----
 
+.setting ticket number as a version
 [source, xml]
 ----
 <parent>
@@ -463,9 +478,18 @@ digraph G {
 </parent>
 ----
 
-However, it leads to a lots of `pom.xml` in pull request's diff.
+
+In multimodule maven setup you need to update a version in all  `pom.xml` files in all submodules.
+It will make a diff bigger, and not convenient for code review
 
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+
+==== Optimize Build
+
+----
+mvn clean install -amd
+----
+
 
 == TL;DR
 
@@ -484,4 +508,4 @@ If you still use `maven-release-plugin`, read https://axelfontaine.com/blog/fina
 
 == New Problems
 
-Build became longer
+Build became longer.
