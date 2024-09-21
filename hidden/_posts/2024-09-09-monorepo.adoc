@@ -31,11 +31,11 @@ Big-known companies use monorepo. I.e:
 You don't have to be a Google to have a monorepo.
 
 In this post, I'll show how to build a monorepo with `Git`, `Maven` and `Jenkins`,
-wWhich problems a monorepos solves and which problems it brings.
+which problems a monorepos solves and which problems it brings.
 
 == Problem
 First, let me show which problems a classic "one project, one repository" setup brings.
-In most cases, it works the inconveniences start when you need to make changes in few repos.
+In most cases, it works well. The inconvenience comes when you need to make changes in a few repos.
 
 Situation:
 
@@ -51,15 +51,15 @@ You need:
 * Release `project1`;
 * If you forget smth in `project2`, repeat :)
 
-It see
-In the extreme case, it will lead to
+To get one chunk of work done, you need to make a few changes, pull requests, releases, and version updates.
+In the extreme case, such setup leads to
 https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
 
 
 In this section, I'll show how we can end up with such a problem.
-As an example, I'll describe web-services and libraries.
+As an example, I'll use web-services and libraries.
 
-In microservice architecture, you can have few independent web-services.
+In a microservice architecture, you can have a few independent web-services.
 
 .Just a few services
 [plantuml, two-web-services]
