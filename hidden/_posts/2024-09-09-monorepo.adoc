@@ -340,10 +340,10 @@ To speed up a monomaven build, see the next section.
 When projects are spread acros different repositories, developers can work on them without stepping on each other foots.
 However, if developers work on different sections of one artifact, it might lead to problems:
 
-* Constant artifact overriding in artifact repository
-* Long build
+* Constant artifact overriding on upload
+* No Upstream and downstream builds
 
-==== Separate artifacts
+==== Solve artifact overriding artifacts
 Let me show the problem with constant artifact overriding.
 Your CI might be different, i.e. you might not upload anything at all. However, in this example, I want to show a potential problem.
 
@@ -484,12 +484,58 @@ It will make a diff bigger, and not convenient for code review
 
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
-==== Optimize Build
+==== Upstream and Downstream Builds
+If you have separate Jenkins CIs on separate repos, you can set up upstream build.
+It means that if one of the project dependencies changes, the project CI job will be triggered.
 
+.typical project
+[plantuml, upstream]
 ----
-mvn clean install -amd
+digraph G {
+  splines=false;
+  node [shape="rectangle"]
+
+  WS_1 -> CORE
+  WS_2 -> CORE
+  CORE -> DB
+  CORE -> UTIL
+
+  WS_1 [label="web-service-1"]
+  WS_2 [label="web-service-2"]
+  CORE [label="core-lib"]
+  DB [label="db-lib"]
+  UTIL [label="util-lib"]
+}
 ----
 
+In the picture above, if `util-lib` is updated, `core-lib` job will be triggered.
+Then as `core-lib` is updated, `web-service-1` and `web-service-2` jobs will be triggered.
+It helps to make sure that all projects work correctly with the new dependency.
+
+In multi-module maven project, you can specify which modules to build by using `--projects` flag.
+
+.specify modules to build
+----
+mvn clean install --projects util-lib,util-lib
+----
+
+You can also tell maven do build modules that depend on the selected modules, by using `--also-make-dependents` flag.
+
+.downstream
+----
+mvn clean install --projects core-lib --also-make-dependents
+----
+
+Maven will build `core-lib` and then `web-service-1` and `web-service-2`.
+
+And vise versa, you can also tell maven do build modules dependencies, by using `--also-make` flag.
+
+.upstream
+----
+mvn clean install --projects core-lib --also-make
+----
+
+Maven will build `core-lib` and then `db-lib` and `util-lib`.
 
 == TL;DR
 
@@ -503,6 +549,8 @@ To see a dependencies graph of your maven project, use https://ferstl.github.io/
 To avoid overriding snapshots, when two developers work on the module at the same time, put ticket number into the version.
 
 To reduce spreading same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+
+To mimic upstream and downstream builds in https://maven.apache.org/guides/mini/guide-multiple-modules.html[multimodule maven] use `--also-make` and `--also-make-dependents` flags.
 
 If you still use `maven-release-plugin`, read https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin].
 
