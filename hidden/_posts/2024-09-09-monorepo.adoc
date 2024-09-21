@@ -29,7 +29,27 @@ Which problems it solves and which problems it brings.
 
 == Problem
 
-As an example, I'll describe web-services and libraries. How
+Situation:
+
+* `Project1` in `repo1` depends on `project2` in `repo2`;
+* To add a feature to `project1`, `project2` needs to be extended (or bug fixed).
+
+You need:
+
+* Add code to `repo2`;
+* Release `project2`;
+* Update a version of `project2` in `project1`;
+* Add code to `repo1`;
+* Release `project1`;
+* If you forget smth in `project2`, repeat :)
+
+It see
+In the extreme case, it will lead to
+https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
+
+
+In this section, I'll show how we can end with such problem.
+As an example, I'll describe web-services and libraries.
 
 In microservice architecture, you can have few independent web-services.
 
@@ -136,8 +156,6 @@ Which leads to problems:
 
 .Dependency hell image https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[source]
 image::../../hidden/monorepo/dependency-hell.png[]
-
-Which leads to https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
 
 To see a dependency graph of your project, use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin].
 
@@ -461,6 +479,8 @@ To see a dependencies graph of your maven project, use https://ferstl.github.io/
 To avoid overriding snapshots, when two developers work on the module at the same time, put ticket number into the version.
 
 To reduce spreading same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+
+If you still use `maven-release-plugin`, read https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin].
 
 == New Problems
 
