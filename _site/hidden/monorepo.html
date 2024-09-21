@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Monorepo | Ravil Galeyev</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Monorepo" />
+<meta name="author" content="Ravil Galeyev" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="DRAFT: In Preview" />
+<meta property="og:description" content="DRAFT: In Preview" />
+<link rel="canonical" href="https://dehasi.me/hidden/monorepo" />
+<meta property="og:url" content="https://dehasi.me/hidden/monorepo" />
+<meta property="og:site_name" content="Ravil Galeyev" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-09T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Monorepo" />
+<script type="application/ld+json">
+{"headline":"Monorepo","dateModified":"2024-09-09T00:00:00-05:00","datePublished":"2024-09-09T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://dehasi.me/hidden/monorepo"},"url":"https://dehasi.me/hidden/monorepo","author":{"@type":"Person","name":"Ravil Galeyev"},"@type":"BlogPosting","description":"DRAFT: In Preview","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://dehasi.me/feed.xml" title="Ravil Galeyev" /><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    TeX: {
+    equationNumbers: { autoNumber: "AMS" },
+    tagSide: "right"
+    },
+    tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true
+    }
+});
+MathJax.Hub.Register.StartupHook("TeX AMSmath Ready", function () {
+    MathJax.InputJax.TeX.Stack.Item.AMSarray.Augment({
+    clearTag() {
+        if (!this.global.notags) {
+        this.super(arguments).clearTag.call(this);
+        }
+    }
+    });
+});
+</script>
+<script type="text/javascript" charset="utf-8"
+src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ravil Galeyev</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects">Projects</a><a class="page-link" href="/notes">Notes</a><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Monorepo</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2024-09-09T00:00:00-05:00" itemprop="datePublished">
+        Sep 9, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>DRAFT:</strong> In Preview</p>
+</div>
+<div class="paragraph">
+<p>How to build a monorepo with <code>Git</code>, <code>Maven</code> and <code>Jenkins</code>.
+Which problems it solves and which problems it brings.</p>
+</div>
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#what-is-monorepo">What is Monorepo</a></li>
+<li><a href="#problem">Problem</a></li>
+<li><a href="#solution">Solution</a>
+<ul class="sectlevel2">
+<li><a href="#put-code-into-one-repository">Put Code into One Repository</a></li>
+<li><a href="#explain-to-jenkins-what-to-build">Explain to Jenkins What to Build</a></li>
+<li><a href="#release">Release</a></li>
+<li><a href="#monomaven">Monomaven</a></li>
+</ul>
+</li>
+<li><a href="#tldr">TL;DR</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="what-is-monorepo">What is Monorepo</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One project, one repository, one CI job is the most popular setup.
+However, not always most convenient.</p>
+</div>
+<div class="paragraph">
+<p>When one repository keeps few projects, we call it mono repository &#8658; monorepo.
+In monorepo we can apply changes to multiple projects - modules -  via one commit.</p>
+</div>
+<div class="paragraph">
+<p>Big-known companies use monorepo. I.e:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Google keeps everything in <code>Piper</code> and builds with <code>Bazel</code>, see <a href="https://qeunit.com/blog/how-google-does-monorepo/">how-google-does-monorepo</a></p>
+</li>
+<li>
+<p>Facebook keeps everything in <code>Mercurial</code> and builds with <code>Buck</code>, see <a href="https://softwareengineering.stackexchange.com/questions/452535/why-does-meta-facebook-use-mono-repo-in-their-source-control">why-does-meta-facebook-use-mono-repo-in-their-source-control</a></p>
+</li>
+<li>
+<p>Uber, see <a href="https://www.uber.com/en-NL/blog/go-monorepo-bazel/">go-monorepo-bazel</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You don&#8217;t have to be a Google to have a monorepo.</p>
+</div>
+<div class="paragraph">
+<p>In this post, I&#8217;ll show how to build a monorepo with <code>Git</code>, <code>Maven</code> and <code>Jenkins</code>,
+which problems a monorepos solves and which problems it brings.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="problem">Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First, let me show which problems a classic "one project, one repository" setup brings.
+In most cases, it works well. The inconvenience comes when you need to make changes in a few repos.</p>
+</div>
+<div class="paragraph">
+<p>Situation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Project1</code> in <code>repo1</code> depends on <code>project2</code> in <code>repo2</code>;</p>
+</li>
+<li>
+<p>To add a feature to <code>project1</code>, you need to extend or bugfix <code>project2</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Add code to <code>repo2</code>;</p>
+</li>
+<li>
+<p>Release <code>project2</code>;</p>
+</li>
+<li>
+<p>Update a version of <code>project2</code> in <code>project1</code>;</p>
+</li>
+<li>
+<p>Add code to <code>repo1</code>;</p>
+</li>
+<li>
+<p>Release <code>project1</code>;</p>
+</li>
+<li>
+<p>If you forget smth in <code>project2</code>, repeat :)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To get one chunk of work done, you need to make a few changes, pull requests, releases, and version updates.
+In the extreme case, such setup leads to
+<a href="https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918">Dependency Hell</a></p>
+</div>
+<div class="paragraph">
+<p>In this section, I&#8217;ll show how we can end up with such a problem.
+As an example, I&#8217;ll use web-services and libraries.</p>
+</div>
+<div class="paragraph">
+<p>In a microservice architecture, you can have a few independent web-services.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/two-web-services.png" alt="two web services" width="184" height="59">
+</div>
+<div class="title">Figure 1. Just a few services</div>
+</div>
+<div class="paragraph">
+<p>However, there will be common parts.
+And you can choose: have duplicates or extract a library.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/two-web-services-common-part.png" alt="two web services common part" width="200" height="77">
+</div>
+<div class="title">Figure 2. Common parts are shown as grey</div>
+</div>
+<div class="paragraph">
+<p>If you extract a library, both web-services become dependent on it.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/two-web-services-use-lib.png" alt="two web services use lib" width="184" height="155">
+</div>
+<div class="title">Figure 3. Don&#8217;t Repeat Yourself</div>
+</div>
+<div class="paragraph">
+<p>Usually, it leads to libraries with very general names.
+Every project/company can have libraries like:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>core-lib</p>
+</li>
+<li>
+<p>common-lib</p>
+</li>
+<li>
+<p>database-lib</p>
+</li>
+<li>
+<p>util-lib</p>
+</li>
+<li>
+<p>shared-lib</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When a new version of a library is released, not everybody switches to it immediately.
+This results in different web-services having different versions.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/two-web-services-use-lib-versioning.png" alt="two web services use lib versioning" width="192" height="175">
+</div>
+<div class="title">Figure 4. Different versions</div>
+</div>
+<div class="paragraph">
+<p>Sometimes, when you need to make a change in a service,
+you also need to make a change in a library.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/two-web-services-change.png" alt="two web services change" width="184" height="155">
+</div>
+<div class="title">Figure 5. Change in both places</div>
+</div>
+<div class="paragraph">
+<p>Which leads to problems:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The logic is spread</p>
+</li>
+<li>
+<p>Two pull requests (at least two)</p>
+</li>
+<li>
+<p>Not easy to test together</p>
+</li>
+<li>
+<p>Change in the shared library can break another service</p>
+</li>
+<li>
+<p>Two releases (at least two)</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/hidden/monorepo/dependency-hell.png" alt="dependency hell">
+</div>
+<div class="title">Figure 6. Dependency hell image <a href="https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918">source</a></div>
+</div>
+<div class="paragraph">
+<p>To see a dependency graph of your project, use <a href="https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html">depgraph-maven-plugin</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="solution">Solution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>What do we want:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Release easier</p>
+</li>
+<li>
+<p>Know if changes lead to other builds' failure</p>
+</li>
+<li>
+<p>Have one PR with all changes</p>
+</li>
+<li>
+<p>Get rid of dependency hell</p>
+</li>
+<li>
+<p>Have one common version</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To achieve that, we put all projects into one repository and set up Jenkins pipeline.</p>
+</div>
+<div class="sect2">
+<h3 id="put-code-into-one-repository">Put Code into One Repository</h3>
+<div class="paragraph">
+<p>Git allows you to merge a few repos into one and keep history. To do that use <code>--allow-unrelated-histories</code> option.</p>
+</div>
+<div class="listingblock">
+<div class="title">merge repos into one</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shellscript"># We are in the monorepo folder.
+# We want to add to the monorepo a new repo
+# The new repo lives in /path/to/repo
+git remote add ${remote_name} /path/to/repo
+git merge ${remote_name}/master --allow-unrelated-histories -m "merge project"
+git push --tags</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="explain-to-jenkins-what-to-build">Explain to Jenkins What to Build</h3>
+<div class="paragraph">
+<p>Constantly building all projects in the mono repository is overkill.
+We want to build only projects that were changed, to achieve that CI needs to know which files were changed.</p>
+</div>
+<div class="paragraph">
+<p>In Jenkins, we can check <code>currentBuild.changeSets</code></p>
+</div>
+<div class="listingblock">
+<div class="title">Jenkinsfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="groovy"><span class="n">stages</span> <span class="o">{</span>
+    <span class="n">stage</span><span class="o">(</span><span class="s1">'core-lib'</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">when</span> <span class="o">{</span>
+            <span class="n">changeset</span> <span class="s1">'core-lib/**'</span>
+        <span class="o">}</span>
+        <span class="n">steps</span> <span class="o">{</span>
+            <span class="n">sh</span> <span class="s1">'''
+                cd core-lib
+                mvn clean install
+            '''</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="n">stage</span><span class="o">(</span><span class="s1">'util-lib'</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">when</span> <span class="o">{</span>
+            <span class="n">changeset</span> <span class="s1">'util-lib/**'</span>
+        <span class="o">}</span>
+        <span class="n">steps</span> <span class="o">{</span>
+            <span class="n">sh</span> <span class="s1">'''
+                cd util-lib
+                mvn clean install
+            '''</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Be careful.</strong> If <code>core-lib</code> depends on <code>util-lib</code>, a build will fail.
+It can be solved by choosing a build order. Another solution is relying on <code>maven</code>, see <a href="#monomaven">Monomaven</a> section.</p>
+</div>
+<div class="paragraph">
+<p>The bigger problem is that Jenkins <strong>can&#8217;t</strong> recognize a <code>changeset</code> from a pull request <a href="https://issues.jenkins.io/browse/JENKINS-54285">JENKINS-54285</a>.
+That&#8217;s why instead of <code>changeset</code>, it&#8217;s better to rely on <code>git</code> itself.</p>
+</div>
+<div class="listingblock">
+<div class="title">shows list of changed files</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shellscript">git diff --name-only ${BRANCH} master</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Such an approach is more general and does not rely on Jenkins.</p>
+</div>
+<div class="paragraph">
+<p>The solution from the ticket above:</p>
+</div>
+<div class="listingblock">
+<div class="title">define a function that checks if a module was changed</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="groovy"><span class="kt">def</span> <span class="kt">boolean</span> <span class="nf">hasChangesIn</span><span class="o">(</span><span class="n">String</span> <span class="n">module</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="o">!</span><span class="n">env</span><span class="o">.</span><span class="na">CHANGE_TARGET</span> <span class="o">||</span> <span class="n">sh</span><span class="o">(</span>
+    <span class="nl">returnStatus:</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="nl">script:</span> <span class="s2">"git diff --name-only origin/${env.CHANGE_TARGET}...${env.GIT_COMMIT} | grep ^${module}/"</span>
+  <span class="o">)</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>hasChangesIn</code> function in the pipeline like:</p>
+</div>
+<div class="listingblock">
+<div class="title">call our own hasChangesIn instead of <code>changeset</code></div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="groovy"><span class="n">when</span> <span class="o">{</span>
+  <span class="n">expression</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">hasChangesIn</span><span class="o">(</span><span class="s1">'my-dir'</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The improved version:</p>
+</div>
+<div class="listingblock">
+<div class="title">improved Jenkinsfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="groovy"><span class="n">stages</span> <span class="o">{</span>
+    <span class="n">stage</span><span class="o">(</span><span class="s1">'core-lib'</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">when</span> <span class="o">{</span>
+            <span class="n">hasChangesIn</span><span class="o">(</span><span class="s1">'core-lib/**'</span><span class="o">)</span>
+        <span class="o">}</span>
+        <span class="n">steps</span> <span class="o">{</span>
+            <span class="n">sh</span> <span class="s1">'''
+                cd core-lib
+                mvn clean install
+            '''</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="n">stage</span><span class="o">(</span><span class="s1">'util-lib'</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">when</span> <span class="o">{</span>
+            <span class="n">hasChangesIn</span><span class="o">(</span><span class="s1">'util-lib/**'</span><span class="o">)</span>
+            <span class="n">hasChangesIn</span><span class="o">(</span><span class="s1">'util-lib/**'</span><span class="o">)</span>
+        <span class="o">}</span>
+        <span class="n">steps</span> <span class="o">{</span>
+            <span class="n">sh</span> <span class="s1">'''
+                cd util-lib
+                mvn clean install
+            '''</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="release">Release</h3>
+<div class="paragraph">
+<p>If you don&#8217;t use <code>maven-release-plugin</code> you can skip this part.
+If you use <code>maven-release-plugin</code> you might have two unnecessary builds
+and two unnecessary commits.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="https://axelfontaine.com/blog/final-nail.html">Maven Release Plugin: The Final Nail in the Coffin</a>
+for more details on why it&#8217;s better not to use  <code>maven-release-plugin</code>.</p>
+</div>
+<div class="paragraph">
+<p>Getting back to releasing. In the end, we what to have two artifacts: one with the released version and another with a new snapshot.</p>
+</div>
+<div class="paragraph">
+<p>To achieve that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Calculate and set a new version via <a href="https://www.mojohaus.org/versions/versions-maven-plugin/index.html">versions-maven-plugin</a>;</p>
+</li>
+<li>
+<p>Run the build;</p>
+</li>
+<li>
+<p>If the build passes, you&#8217;ll have an artifact with the released version;</p>
+</li>
+<li>
+<p>Add a new git tag;</p>
+</li>
+<li>
+<p>Update the version to a snapshot;</p>
+</li>
+<li>
+<p>You don&#8217;t need a full build here; compile and upload the artifact with the new snapshot version;</p>
+</li>
+<li>
+<p>Add a new git tag.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As you can see, to additional commits.</p>
+</div>
+<div class="listingblock">
+<div class="title">release</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">mvn versions:set <span class="nt">-DnewVersion</span><span class="o">=</span>&lt;version&gt; <span class="nt">--quite</span>
+mvn clean deploy <span class="nt">-U</span>
+mvn versions:set <span class="nt">-DnewVersion</span><span class="o">=</span>&lt;snapshot&gt; <span class="nt">-DgenerateBackupPoms</span><span class="o">=</span><span class="nb">false
+</span>mvn clean deploy <span class="nt">-DskipTests</span> <span class="c"># skill all checks for the second build</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sometimes, people want to look at diffs between commits or search by commit messages.
+In these cases, maybe it&#8217;s better to add some artificial commits.</p>
+</div>
+<div class="paragraph">
+<p>There are two ways to  release your projects:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>separately</p>
+</li>
+<li>
+<p>all together under one version.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In my biased experience, one big release and one common version are more convenient. However, it makes releases longer.</p>
+</div>
+<div class="paragraph">
+<p>If you decide to release everything at once under one version. It&#8217;s worth considering one big maven multimodule project - "monomaven".</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="monomaven">Monomaven</h3>
+<div class="paragraph">
+<p>When projects are spread across different repositories, developers can work on them without stepping on each other&#8217;s feet.
+However, if developers work on different sections of one artifact, it might lead to problems:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Constant artifact overriding on upload</p>
+</li>
+<li>
+<p>No Upstream and downstream builds</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="solve-overriding-artifacts">Solve Overriding Artifacts</h4>
+<div class="paragraph">
+<p>Let me show the problem with constant artifact overriding.
+Your CI might be different, i.e., you might not upload anything. However, in this example, I want to show a potential problem.</p>
+</div>
+<div class="paragraph">
+<p>When a developer pushes changes, Jenkins builds an artifact and uploads it to an artifact repository.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/upload-artefact.png" alt="upload artefact" width="919" height="105">
+</div>
+<div class="title">Figure 7. Upload an artifact to a repository</div>
+</div>
+<div class="paragraph">
+<p>When two developers work on the same project, one&#8217;s developer changes can override others.
+If you deploy this artifact to some test env, you might deploy another developer changes.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/upload-artefact-override.png" alt="upload artefact override" width="919" height="224">
+</div>
+<div class="title">Figure 8. Two developers work on the same artifact might override each other changes.</div>
+</div>
+<div class="paragraph">
+<p>To solve that, we can add something to the artifact name to distinguish them.
+For example, we can add a ticket number to the version. It can be done manually as a first commit, or Jenkins can do it.
+Jenkins can take a ticket number from a branch name.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/upload-artefact-use-ticket-as-version.png" alt="upload artefact use ticket as version" width="1025" height="224">
+</div>
+<div class="title">Figure 9. Put an artificial version, i.e., a ticket number</div>
+</div>
+<div class="listingblock">
+<div class="title">setting ticket number as a version</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;parent&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>multimodule<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>me.dehasi<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>TICKET-42-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/parent&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In a multimodule maven setup, you need to update a version in all <code>pom.xml</code> files in all submodules.
+It will make a diff bigger, and not convenient for code review.</p>
+</div>
+<div class="paragraph">
+<p>To solve it you can use <a href="https://www.mojohaus.org/flatten-maven-plugin">flatten-maven-plugin</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="upstream-and-downstream-builds">Upstream and Downstream Builds</h4>
+<div class="paragraph">
+<p>In Jenkins, we can set up dependencies between upstream and downstream jobs.
+For example, if <code>project A</code> depends on <code>project B, ' we can trigger `project A</code> build if a <code>project B</code> job is finished.
+You can set up upstream and downstream jobs if you have separate Jenkins CIs on separate repos.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/upstream.png" alt="upstream" width="341" height="251">
+</div>
+<div class="title">Figure 10. typical project</div>
+</div>
+<div class="paragraph">
+<p>In the picture above, if <code>util-lib</code> is updated, <code>core-lib</code> job will be triggered.
+Then, as <code>core-lib</code> is updated, <code>web-service-1</code> and <code>web-service-2</code> jobs will be triggered.
+It helps to make sure that all projects work correctly with the new dependency.</p>
+</div>
+<div class="paragraph">
+<p>We can&#8217;t use this feature if we have only one Jenkins job for the monorepo.
+However, <code>maven</code> can help us to achieve upstream and downstream builds.</p>
+</div>
+<div class="paragraph">
+<p>In a multi-module maven project, you can specify which modules to build by using <code>--projects</code> flag.</p>
+</div>
+<div class="listingblock">
+<div class="title">specify modules to build</div>
+<div class="content">
+<pre>mvn clean install --projects util-lib,util-lib</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also tell maven to build modules that depend on the selected modules, by using <code>--also-make-dependents</code> flag.</p>
+</div>
+<div class="listingblock">
+<div class="title">downstream</div>
+<div class="content">
+<pre>mvn clean install --projects core-lib --also-make-dependents</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Maven will build <code>core-lib</code> and then <code>web-service-1</code> and <code>web-service-2</code>.</p>
+</div>
+<div class="paragraph">
+<p>And vice versa, you can also tell Maven to build module dependencies by using the <code>--also-make</code> flag.</p>
+</div>
+<div class="listingblock">
+<div class="title">upstream</div>
+<div class="content">
+<pre>mvn clean install --projects core-lib --also-make</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Maven will build <code>core-lib</code> and then <code>db-lib</code> and <code>util-lib</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="tldr">TL;DR</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To merge a few <code>git</code> repos into one and keep history, see <a href="https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---allow-unrelated-histories">allow-unrelated-histories</a> flag.</p>
+</div>
+<div class="paragraph">
+<p>To see a list of changed files in <code>git</code>, see <a href="https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---name-only">name-only</a> flag.
+Don&#8217;t rely on Jenkins <code>changeset</code> or <code>currentBuild.changeSets</code>.</p>
+</div>
+<div class="paragraph">
+<p>To see a dependencies graph of your maven project, use <a href="https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html">depgraph-maven-plugin</a>.</p>
+</div>
+<div class="paragraph">
+<p>When two developers work on the module at the same time, put the ticket number into the version to avoid overriding snapshots.</p>
+</div>
+<div class="paragraph">
+<p>To reduce spreading then same values like version across <code>maven</code> submodules, use <a href="https://www.mojohaus.org/flatten-maven-plugin">flatten-maven-plugin</a>.</p>
+</div>
+<div class="paragraph">
+<p>For upstream and downstream builds in <a href="https://maven.apache.org/guides/mini/guide-multiple-modules.html">multimodule maven</a> use <code>--also-make</code> and <code>--also-make-dependents</code> flags.</p>
+</div>
+<div class="paragraph">
+<p>If you still use <code>maven-release-plugin</code>, read <a href="https://axelfontaine.com/blog/final-nail.html">Maven Release Plugin: The Final Nail in the Coffin</a>.</p>
+</div>
+</div>
+</div>
+  </div><a class="u-url" href="/hidden/monorepo" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Ravil Galeyev</li>
+          <li><a class="u-email" href="mailto:dehasi@protonmail.com">dehasi@protonmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p>There is no unique content.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/dehasi" title="dehasi"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/ravil%F0%9F%90%B3-galeyev-9a7540102" title="ravil🐳-galeyev-9a7540102"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/rgaleyev" title="rgaleyev"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

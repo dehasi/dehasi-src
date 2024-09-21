@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Add AsciiDoc to Jekyll | Ravil Galeyev</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Add AsciiDoc to Jekyll" />
+<meta name="author" content="Ravil Galeyev" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="It&#8217;s mostly copy-paste of this source" />
+<meta property="og:description" content="It&#8217;s mostly copy-paste of this source" />
+<link rel="canonical" href="https://dehasi.me/notes/add-asciidoc-to-jekyll.html" />
+<meta property="og:url" content="https://dehasi.me/notes/add-asciidoc-to-jekyll.html" />
+<meta property="og:site_name" content="Ravil Galeyev" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-04-12T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Add AsciiDoc to Jekyll" />
+<script type="application/ld+json">
+{"headline":"Add AsciiDoc to Jekyll","dateModified":"2021-04-12T00:00:00-05:00","datePublished":"2021-04-12T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://dehasi.me/notes/add-asciidoc-to-jekyll.html"},"url":"https://dehasi.me/notes/add-asciidoc-to-jekyll.html","author":{"@type":"Person","name":"Ravil Galeyev"},"@type":"BlogPosting","description":"It&#8217;s mostly copy-paste of this source","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://dehasi.me/feed.xml" title="Ravil Galeyev" /><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    TeX: {
+    equationNumbers: { autoNumber: "AMS" },
+    tagSide: "right"
+    },
+    tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true
+    }
+});
+MathJax.Hub.Register.StartupHook("TeX AMSmath Ready", function () {
+    MathJax.InputJax.TeX.Stack.Item.AMSarray.Augment({
+    clearTag() {
+        if (!this.global.notags) {
+        this.super(arguments).clearTag.call(this);
+        }
+    }
+    });
+});
+</script>
+<script type="text/javascript" charset="utf-8"
+src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ravil Galeyev</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects">Projects</a><a class="page-link" href="/notes">Notes</a><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Add AsciiDoc to Jekyll</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2021-04-12T00:00:00-05:00" itemprop="datePublished">
+        Apr 12, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>It&#8217;s mostly copy-paste of <a href="https://www.crystal-growth.net/etc/basic-jekyll-site">this</a> source</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="build-from-docker">Build from docker</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Original Jekyll images uses Arch linux with minimal setup. And there is no requreeed fonts.
+We need to exted it</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> jekyll/builder:4</span>
+
+<span class="k">RUN </span>apk update <span class="o">&amp;&amp;</span> apk upgrade <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apk add <span class="nt">--no-cache</span> fontconfig ttf-dejavu
+
+<span class="k">RUN </span><span class="nb">mkdir</span> /graphviz <span class="o">&amp;&amp;</span> <span class="se">\
+</span>  apk add <span class="nt">--update</span> graphviz
+
+<span class="k">COPY</span><span class="s"> ./Gemfile ./</span>
+
+<span class="k">RUN </span>bundle <span class="nb">install</span>
+
+<span class="c"># docker build . -t dehasi/jekyll:4.1</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="update-gemfile-to-have-asciidoc">Update Gemfile to have asciidoc</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="ruby"><span class="n">gem</span> <span class="s2">"minima"</span><span class="p">,</span> <span class="ss">github: </span><span class="s2">"jekyll/minima"</span> // <b class="conum">(1)</b>
+
+<span class="n">group</span> <span class="ss">:jekyll_plugins</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s2">"jekyll-feed"</span><span class="p">,</span> <span class="s2">"~&gt; 0.12"</span>
+
+  <span class="n">gem</span> <span class="s1">'jekyll-asciidoc'</span> // <b class="conum">(2)</b>
+  <span class="n">gem</span> <span class="s1">'jekyll-archives'</span>
+  <span class="n">gem</span> <span class="s1">'asciidoctor-diagram'</span>
+<span class="k">end</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>To be able to add extentions to headers</p>
+</li>
+<li>
+<p>Asciidoc gems</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Update <code>_config.yaml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="yaml"><span class="na">plugins</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">jekyll-feed</span>
+  <span class="pi">-</span> <span class="s">jekyll-asciidoc</span>
+
+<span class="na">asciidoctor</span><span class="pi">:</span> <b class="conum">(1)</b>
+  <span class="na">attributes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">imagesdir=/assets/images</span>
+    <span class="pi">-</span> <span class="s">imagesoutdir=/assets/images</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>To be able to use plantUml</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="source-highlighting">Source highlighting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To highlight systax add the following header</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="asciidoc">:source-highlighter: rouge</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extend-header-to-use-latex">Extend header to use latex</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Create <code>_includes/custom-head.html</code> and add the following content</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">"text/x-mathjax-config"</span><span class="nt">&gt;</span>
+MathJax.Hub.Config({
+    TeX: {
+    equationNumbers: { autoNumber: "AMS" },
+    tagSide: "right"
+    },
+    tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true
+    }
+});
+MathJax.Hub.Register.StartupHook("TeX AMSmath Ready", function () {
+    MathJax.InputJax.TeX.Stack.Item.AMSarray.Augment({
+    clearTag() {
+        if (!this.global.notags) {
+        this.super(arguments).clearTag.call(this);
+        }
+    }
+    });
+});
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">"text/javascript"</span> <span class="na">charset=</span><span class="s">"utf-8"</span>
+<span class="na">src=</span><span class="s">"https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/script&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add the following headers</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="asciidoc">:eqnums:
+:stem: latexmath</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you can use equations
+\(C = \alpha + \beta Y^{\gamma} + \epsilon\)</p>
+</div>
+<div class="paragraph">
+<p>This is a numbered equation \eqref{myequation}</p>
+</div>
+<div class="paragraph">
+<p>PlantUML diagrams as well</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/images/jekyll-asciidoc-expample.png" alt="jekyll asciidoc expample" width="83" height="155">
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}\label{myequation}
+c^2 = a^2 + b^2 + 5
+\end{equation}\]
+</div>
+</div>
+</div>
+</div>
+  </div><a class="u-url" href="/notes/add-asciidoc-to-jekyll.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Ravil Galeyev</li>
+          <li><a class="u-email" href="mailto:dehasi@protonmail.com">dehasi@protonmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p>There is no unique content.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/dehasi" title="dehasi"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/ravil%F0%9F%90%B3-galeyev-9a7540102" title="ravil🐳-galeyev-9a7540102"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/rgaleyev" title="rgaleyev"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
