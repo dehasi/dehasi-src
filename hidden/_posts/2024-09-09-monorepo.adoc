@@ -550,10 +550,6 @@ To avoid overriding snapshots, when two developers work on the module at the sam
 
 To reduce spreading same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
-To mimic upstream and downstream builds in https://maven.apache.org/guides/mini/guide-multiple-modules.html[multimodule maven] use `--also-make` and `--also-make-dependents` flags.
+To mimic upstream and downstream, builds in https://maven.apache.org/guides/mini/guide-multiple-modules.html[multimodule maven] use `--also-make` and `--also-make-dependents` flags.
 
 If you still use `maven-release-plugin`, read https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin].
-
-== New Problems
-
-Build became longer.
