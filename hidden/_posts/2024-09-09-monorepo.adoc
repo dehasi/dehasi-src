@@ -180,7 +180,7 @@ To achieve that, we put all projects into one repository and set up Jenkins pipe
 
 === Put Code into One Repository
 
-Git allows you to merge few repos into one and keep history. To do that use `--allow-unrelated-histories` option.
+Git allows you to merge a few repos into one and keep history. To do that use `--allow-unrelated-histories` option.
 
 .merge repos into one
 [source, shellscript]
@@ -194,7 +194,7 @@ git push --tags
 ----
 
 === Explain to Jenkins What to Build
-Constantly building all projects in the mono repository, it's overkill.
+Constantly building all projects in the mono repository is overkill.
 We want to build only projects that were changed, to achieve that CI needs to know which files were changed.
 
 In Jenkins, we can check `currentBuild.changeSets`
@@ -228,11 +228,11 @@ stages {
 }
 ----
 
-*Be careful.* If `core-lib` depends on `util-lib` a build will fail.
-It can be solved by choosing a build order. Another solution is relied on `maven`, see <<monomaven>> section.
+*Be careful.* If `core-lib` depends on `util-lib`, a build will fail.
+It can be solved by choosing a build order. Another solution is relying on `maven`, see <<monomaven>> section.
 
 The bigger problem is that Jenkins *can't* recognize a `changeset` from a pull request https://issues.jenkins.io/browse/JENKINS-54285[JENKINS-54285].
-That's why instead of `changeset` it's better rely on `git` itself.
+That's why instead of `changeset`, it's better to rely on `git` itself.
 
 .shows list of changed files
 [source, shellscript]
@@ -304,19 +304,19 @@ If you use `maven-release-plugin` you might have two unnecessary builds
 and two unnecessary commits.
 
 See https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin]
-for more details why it's better not to use  `maven-release-plugin`.
+for more details on why it's better not to use  `maven-release-plugin`.
 
-Getting back to releasing. In the end, we what to have two artifacts: one with the released version, another with a new snapshot.
+Getting back to releasing. In the end, we what to have two artifacts: one with the released version and another with a new snapshot.
 
 To achieve that:
 
-* Calculate and set a new version via https://www.mojohaus.org/versions/versions-maven-plugin/index.html[versions-maven-plugin]
-* Run the build
-* If the build passes, you'll have an artifact with the released version
-* Add a new git tag
-* Update the version to a snapshot
-* You don't need full build here, compile and upload the artifact with the new snapshot version.
-* Add a new git tag
+* Calculate and set a new version via https://www.mojohaus.org/versions/versions-maven-plugin/index.html[versions-maven-plugin];
+* Run the build;
+* If the build passes, you'll have an artifact with the released version;
+* Add a new git tag;
+* Update the version to a snapshot;
+* You don't need a full build here; compile and upload the artifact with the new snapshot version;
+* Add a new git tag.
 
 As you can see, to additional commits.
 
@@ -329,27 +329,29 @@ mvn versions:set -DnewVersion=<snapshot> -DgenerateBackupPoms=false
 mvn clean deploy -DskipTests # skill all checks for the second build
 ----
 
-Sometimes people want to look at diffs between commits, or search by commit messages.
-In these cases, maybe it's better to add some artificial commits. Up to you.
+Sometimes, people want to look at diffs between commits or search by commit messages.
+In these cases, maybe it's better to add some artificial commits.
 
-You also need to decide are you going to release your projects separately or all together under one version.
-In my biased experience, one big release and one common version is more convenient, however, it makes releases longer.
+There are two ways to  release your projects:
 
-If you decide to release everything at once under one version. It is worth considering one big maven multimodule project - "monomaven".
+* separately
+* all together under one version.
 
-To speed up a monomaven build, see the next section.
+In my biased experience, one big release and one common version are more convenient. However, it makes releases longer.
+
+If you decide to release everything at once under one version. It's worth considering one big maven multimodule project - "monomaven".
 
 === Monomaven [[monomaven]]
 
-When projects are spread acros different repositories, developers can work on them without stepping on each other foots.
+When projects are spread across different repositories, developers can work on them without stepping on each other's feet.
 However, if developers work on different sections of one artifact, it might lead to problems:
 
 * Constant artifact overriding on upload
 * No Upstream and downstream builds
 
-==== Solve artifact overriding artifacts
+==== Solve Overriding Artifacts
 Let me show the problem with constant artifact overriding.
-Your CI might be different, i.e. you might not upload anything at all. However, in this example, I want to show a potential problem.
+Your CI might be different, i.e., you might not upload anything. However, in this example, I want to show a potential problem.
 
 When a developer pushes changes, Jenkins builds an artifact and uploads it to an artifact repository.
 
@@ -384,7 +386,7 @@ digraph G {
 ----
 
 When two developers work on the same project, one's developer changes can override others.
-If you deploy this artefact so some test env, you might deploy another developer changes.
+If you deploy this artifact to some test env, you might deploy another developer changes.
 
 .Two developers work on the same artifact might override each other changes.
 [plantuml, upload-artefact-override]
@@ -427,8 +429,8 @@ digraph G {
 }
 ----
 
-To solve that, we can put something to the artifact name to make them distinguishable.
-I.e. we can put a ticket number into the version. It can be done manually as a firt commit, or Jenkins can do it.
+To solve that, we can add something to the artifact name to distinguish them.
+For example, we can add a ticket number to the version. It can be done manually as a first commit, or Jenkins can do it.
 Jenkins can take a ticket number from a branch name.
 
 .Put an artificial version, i.e., a ticket number
@@ -482,9 +484,8 @@ digraph G {
 </parent>
 ----
 
-
-In multimodule maven setup you need to update a version in all  `pom.xml` files in all submodules.
-It will make a diff bigger, and not convenient for code review
+In a multimodule maven setup, you need to update a version in all `pom.xml` files in all submodules.
+It will make a diff bigger, and not convenient for code review.
 
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
