@@ -6,10 +6,14 @@ permalink: /hidden/monorepo
 
 = Monorepo
 :source-highlighter: rouge
-:toc:
+:toc: macro
 
-== Into
+How to build a monorepo with `Git`, `Maven` and `Jenkins`.
+Which problems it solves and which problems it brings.
 
+toc::[]
+
+== What is Monorepo
 One project, one repository, one CI job is the most popular setup.
 However, not always most convenient.
 
@@ -24,15 +28,17 @@ Big-known companies use monorepo. I.e:
 
 You don't have to be a Google to have a monorepo.
 
-In this post, I'll tell how to build a monorepo with `Git`, `Maven` and `Jenkins`.
-Which problems it solves and which problems it brings.
+In this post, I'll show how to build a monorepo with `Git`, `Maven` and `Jenkins`,
+wWhich problems a monorepos solves and which problems it brings.
 
 == Problem
+First, let me show which problems a classic "one project, one repository" setup brings.
+In most cases, it works the inconveniences start when you need to make changes in few repos.
 
 Situation:
 
 * `Project1` in `repo1` depends on `project2` in `repo2`;
-* To add a feature to `project1`, `project2` needs to be extended (or bug fixed).
+* To add a feature to `project1`, you need to extend or bugfix `project2`.
 
 You need:
 
@@ -48,7 +54,7 @@ In the extreme case, it will lead to
 https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
 
 
-In this section, I'll show how we can end with such problem.
+In this section, I'll show how we can end up with such a problem.
 As an example, I'll describe web-services and libraries.
 
 In microservice architecture, you can have few independent web-services.
@@ -85,7 +91,7 @@ digraph G {
 }
 ----
 
-If you extract a library, both web-services become depended on it.
+If you extract a library, both web-services become dependent on it.
 
 .Don't Repeat Yourself
 [plantuml, two-web-services-use-lib]
@@ -102,7 +108,7 @@ digraph G {
 ----
 
 Usually, it leads to libraries with very broad names.
-Every project/company can have libraries:
+Every project/company can have libraries like:
 
 * core-lib
 * common-lib
@@ -110,8 +116,8 @@ Every project/company can have libraries:
 * util-lib
 * shared-lib
 
-
-It ends up with different web-services have different versions
+When a new version of a library is released, not everybody switches to it immediately.
+This results in different web-services having different versions.
 
 .Different versions
 [plantuml, two-web-services-use-lib-versioning]
@@ -128,7 +134,7 @@ splines=false;
 }
 ----
 
-Sometimes when you need to make a change in a service,
+Sometimes, when you need to make a change in a service,
 you also need to make a change in a library.
 
 .Change in both places
@@ -165,14 +171,10 @@ What do we want:
 * Release easier
 * Know if changes lead to other builds failure
 * Have one PR with all changes
-
-Also:
-
 * Get rid of dependency hell
 * Have one common version
-* Release notes
 
-To achieve that, we put all projects into one repository and setup CI.
+To achieve that, we put all projects into one repository and setup Jenkins pipeline.
 
 === Put Code into One Repository
 
@@ -190,10 +192,10 @@ git push --tags
 ----
 
 === Explain to Jenkins What to Build
-Constantly building all projects in the mono repository it's overkill.
-We want to build only projects that was changed. to achieve that CI needs to know which files were changed.
+Constantly building all projects in the mono repository, it's overkill.
+We want to build only projects that were changed, to achieve that CI needs to know which files were changed.
 
-In Jenkins we can check `currentBuild.changeSets`
+In Jenkins, we can check `currentBuild.changeSets`
 
 .Jenkinsfile
 [source, groovy]
@@ -485,8 +487,9 @@ It will make a diff bigger, and not convenient for code review
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
 ==== Upstream and Downstream Builds
-If you have separate Jenkins CIs on separate repos, you can set up upstream build.
-It means that if one of the project dependencies changes, the project CI job will be triggered.
+In Jenkins, we can set up dependencies between jobs called upstream and downstream jobs.
+Like if `project A` depends on `project B`, we can trigger `project A` build if a `project B` job is finished.
+If you have separate Jenkins CIs on separate repos, you can set up upstream and downstream jobs.
 
 .typical project
 [plantuml, upstream]
@@ -511,6 +514,9 @@ digraph G {
 In the picture above, if `util-lib` is updated, `core-lib` job will be triggered.
 Then as `core-lib` is updated, `web-service-1` and `web-service-2` jobs will be triggered.
 It helps to make sure that all projects work correctly with the new dependency.
+
+If we have only one Jenkins job for the monorepo, can't use this feature.
+However `maven` can help us to achieve upsream and downstream builds.
 
 In multi-module maven project, you can specify which modules to build by using `--projects` flag.
 
