@@ -449,6 +449,19 @@ However, it leads to a lots of `pom.xml` in pull request's diff.
 
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
+== TL;DR
+
+To merge few `git` repos into one and keep history, see https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---allow-unrelated-histories[allow-unrelated-histories] flag.
+
+To see a list of changed files in `git` see https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---name-only[name-only] flag.
+Don't rely on Jenkins `changeset` or `currentBuild.changeSets`.
+
+To see a dependencies graph of your maven project, use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin].
+
+To avoid overriding snapshots, when two developers work on the module at the same time, put ticket number into the version.
+
+To reduce spreading same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+
 == New Problems
 
 Build became longer
