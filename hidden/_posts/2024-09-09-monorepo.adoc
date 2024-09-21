@@ -13,7 +13,7 @@ permalink: /hidden/monorepo
 One project, one repository, one CI job is the most popular setup.
 However, not always most convenient.
 
-When one repository keeps few projects, we call it monorepository => monorepo.
+When one repository keeps few projects, we call it mono repository => monorepo.
 In monorepo we can apply changes to multiple projects - modules -  via one commit.
 
 Big-known companies use monorepo. I.e:
@@ -175,6 +175,7 @@ git push --tags
 
 We can check `currentBuild.changeSets`
 
+.Jenkinsfile
 [source, groovy]
 ----
 stages {
@@ -203,17 +204,21 @@ stages {
 }
 ----
 
-If `core-lib` depends on `util-lib` a build will fail.
+*Be careful.* If `core-lib` depends on `util-lib` a build will fail.
+It can be solved by choosing a build order. Another solution is relied on `maven`, see <<monomaven>> section.
 
-The bigger problem is that Jenkins can't recognize a changeset from a PR https://issues.jenkins.io/browse/JENKINS-54285[JENKINS-54285].
+The bigger problem is that Jenkins *can't* recognize a `changeset` from a pull request https://issues.jenkins.io/browse/JENKINS-54285[JENKINS-54285].
+That's why instead of `changeset` it's better rely on `git` itself.
 
+.shows list of changed files
 [source, shellscript]
 ----
 git diff --name-only ${BRANCH} master
 ----
 
-The solution from the ticket above
+The solution from the ticket above:
 
+.define a function that checks if a module was changed
 [source, groovy]
 ----
 def boolean hasChangesIn(String module) {
@@ -224,7 +229,9 @@ def boolean hasChangesIn(String module) {
 }
 ----
 
-And use `hasChangesIn` function in the pipeline like:
+Use `hasChangesIn` function in the pipeline like:
+
+.call our own hasChangesIn instead of `changeset`
 [source, groovy]
 ----
 when {
@@ -234,6 +241,37 @@ when {
 }
 ----
 
+The improved version:
+
+.improved Jenkinsfile
+[source, groovy]
+----
+stages {
+    stage('core-lib') {
+        when {
+            hasChangesIn('core-lib/**')
+        }
+        steps {
+            sh '''
+                cd core-lib
+                mvn clean install
+            '''
+        }
+    }
+    stage('util-lib') {
+        when {
+            hasChangesIn('util-lib/**')
+            hasChangesIn('util-lib/**')
+        }
+        steps {
+            sh '''
+                cd util-lib
+                mvn clean install
+            '''
+        }
+    }
+}
+----
 
 === Release
 If you don't use `maven-release-plugin` you can skip this part.
@@ -262,7 +300,7 @@ in commits but not in tags
 Sometimes artificail commits might be necessary/
 
 
-=== Monomaven
+=== Monomaven [[monomaven]]
 
 ----
 mvn clean install -amd
