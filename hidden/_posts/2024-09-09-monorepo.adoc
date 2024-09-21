@@ -137,10 +137,9 @@ Which leads to problems:
 .Dependency hell image https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[source]
 image::../../hidden/monorepo/dependency-hell.png[]
 
-Which eventually leads to https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
+Which leads to https://simon-maxen.medium.com/avoiding-dependency-hell-4121d2716918[Dependency Hell]
 
-Use can use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin]
-so see a graph of dependencies in your project.
+To see a dependency graph of your project, use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin].
 
 == Solution
 What do we want:
@@ -159,21 +158,24 @@ To achieve that, we put all projects into one repository and setup CI.
 
 === Put Code into One Repository
 
-Git allows you to merge few repos and keep history.
+Git allows you to merge few repos into one and keep history. To do that use `--allow-unrelated-histories` option.
 
+.merge repos into one
 [source, shellscript]
 ----
 # We are in the monorepo folder.
 # We want to add to the monorepo a new repo
 # The new repo lives in /path/to/repo
 git remote add ${remote_name} /path/to/repo
-git merge ${remote_name}/master --allow-unrelated-histories -m ""
+git merge ${remote_name}/master --allow-unrelated-histories -m "merge project"
 git push --tags
 ----
 
 === Explain to Jenkins What to Build
+Constantly building all projects in the mono repository it's overkill.
+We want to build only projects that was changed. to achieve that CI needs to know which files were changed.
 
-We can check `currentBuild.changeSets`
+In Jenkins we can check `currentBuild.changeSets`
 
 .Jenkinsfile
 [source, groovy]
@@ -215,6 +217,7 @@ That's why instead of `changeset` it's better rely on `git` itself.
 ----
 git diff --name-only ${BRANCH} master
 ----
+Such an approach is more general and does not rely on Jenkins.
 
 The solution from the ticket above:
 
@@ -279,26 +282,40 @@ If you use `maven-release-plugin` you might have two unnecessary builds
 and two unnecessary commits.
 
 See https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin]
+for more details why it's better not to use  `maven-release-plugin`.
 
-I'll show how to avoid it.
-You have to build your ar
+Getting back to releasing. In the end, we what to have two artifacts: one with the released version, another with a new snapshot.
 
+To achieve that:
+
+* Calculate and set a new version via https://www.mojohaus.org/versions/versions-maven-plugin/index.html[versions-maven-plugin]
+* Run the build
+* If the build passes, you'll have an artifact with the released version
+* Add a new git tag
+* Update the version to a snapshot
+* You don't need full build here, compile and upload the artifact with the new snapshot version.
+* Add a new git tag
+
+As you can see, to additional commits.
+
+.release
+[source, shell]
 ----
 mvn versions:set -DnewVersion=<version> --quite
 mvn clean deploy -U
 mvn versions:set -DnewVersion=<snapshot> -DgenerateBackupPoms=false
-mvn clean deploy -DskipTests
-
+mvn clean deploy -DskipTests # skill all checks for the second build
 ----
 
+Sometimes people want to look at diffs between commits, or search by commit messages.
+In these cases, maybe it's better to add some artificial commits. Up to you.
 
-People want look at diffs
-IDEA allows search
-in commits but not in tags
+You also need to decide are you going to release your projects separately or all together under one version.
+In my biased experience, one big release and one common version is more convenient, however, it makes releases longer.
 
+If you decide to release everything at once under one version. It is worth considering one big maven multimodule project - "monomaven".
 
-Sometimes artificail commits might be necessary/
-
+To speed up a monomaven build, see the next section.
 
 === Monomaven [[monomaven]]
 
@@ -433,3 +450,5 @@ However, it leads to a lots of `pom.xml` in pull request's diff.
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
 == New Problems
+
+Build became longer
