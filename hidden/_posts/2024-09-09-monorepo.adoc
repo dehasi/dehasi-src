@@ -490,9 +490,9 @@ It will make a diff bigger, and not convenient for code review.
 To solve it you can use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
 ==== Upstream and Downstream Builds
-In Jenkins, we can set up dependencies between jobs called upstream and downstream jobs.
-Like if `project A` depends on `project B`, we can trigger `project A` build if a `project B` job is finished.
-If you have separate Jenkins CIs on separate repos, you can set up upstream and downstream jobs.
+In Jenkins, we can set up dependencies between upstream and downstream jobs.
+For example, if `project A` depends on `project B, ' we can trigger `project A` build if a `project B` job is finished.
+You can set up upstream and downstream jobs if you have separate Jenkins CIs on separate repos.
 
 .typical project
 [plantuml, upstream]
@@ -515,20 +515,20 @@ digraph G {
 ----
 
 In the picture above, if `util-lib` is updated, `core-lib` job will be triggered.
-Then as `core-lib` is updated, `web-service-1` and `web-service-2` jobs will be triggered.
+Then, as `core-lib` is updated, `web-service-1` and `web-service-2` jobs will be triggered.
 It helps to make sure that all projects work correctly with the new dependency.
 
-If we have only one Jenkins job for the monorepo, can't use this feature.
-However `maven` can help us to achieve upsream and downstream builds.
+We can't use this feature if we have only one Jenkins job for the monorepo.
+However, `maven` can help us to achieve upstream and downstream builds.
 
-In multi-module maven project, you can specify which modules to build by using `--projects` flag.
+In a multi-module maven project, you can specify which modules to build by using `--projects` flag.
 
 .specify modules to build
 ----
 mvn clean install --projects util-lib,util-lib
 ----
 
-You can also tell maven do build modules that depend on the selected modules, by using `--also-make-dependents` flag.
+You can also tell maven to build modules that depend on the selected modules, by using `--also-make-dependents` flag.
 
 .downstream
 ----
@@ -537,7 +537,7 @@ mvn clean install --projects core-lib --also-make-dependents
 
 Maven will build `core-lib` and then `web-service-1` and `web-service-2`.
 
-And vise versa, you can also tell maven do build modules dependencies, by using `--also-make` flag.
+And vice versa, you can also tell Maven to build module dependencies by using the `--also-make` flag.
 
 .upstream
 ----
@@ -548,17 +548,17 @@ Maven will build `core-lib` and then `db-lib` and `util-lib`.
 
 == TL;DR
 
-To merge few `git` repos into one and keep history, see https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---allow-unrelated-histories[allow-unrelated-histories] flag.
+To merge a few `git` repos into one and keep history, see https://git-scm.com/docs/git-merge#Documentation/git-merge.txt---allow-unrelated-histories[allow-unrelated-histories] flag.
 
-To see a list of changed files in `git` see https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---name-only[name-only] flag.
+To see a list of changed files in `git`, see https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---name-only[name-only] flag.
 Don't rely on Jenkins `changeset` or `currentBuild.changeSets`.
 
 To see a dependencies graph of your maven project, use https://ferstl.github.io/depgraph-maven-plugin/plugin-info.html[depgraph-maven-plugin].
 
-To avoid overriding snapshots, when two developers work on the module at the same time, put ticket number into the version.
+When two developers work on the module at the same time, put the ticket number into the version to avoid overriding snapshots.
 
-To reduce spreading same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
+To reduce spreading then same values like version across `maven` submodules, use https://www.mojohaus.org/flatten-maven-plugin[flatten-maven-plugin].
 
-To mimic upstream and downstream, builds in https://maven.apache.org/guides/mini/guide-multiple-modules.html[multimodule maven] use `--also-make` and `--also-make-dependents` flags.
+For upstream and downstream builds in https://maven.apache.org/guides/mini/guide-multiple-modules.html[multimodule maven] use `--also-make` and `--also-make-dependents` flags.
 
 If you still use `maven-release-plugin`, read https://axelfontaine.com/blog/final-nail.html[Maven Release Plugin: The Final Nail in the Coffin].
