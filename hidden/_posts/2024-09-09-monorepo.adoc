@@ -8,6 +8,8 @@ permalink: /hidden/monorepo
 :source-highlighter: rouge
 :toc: macro
 
+*DRAFT:* In Preview
+
 How to build a monorepo with `Git`, `Maven` and `Jenkins`.
 Which problems it solves and which problems it brings.
 
